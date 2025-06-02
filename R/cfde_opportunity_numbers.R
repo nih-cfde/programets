@@ -35,5 +35,7 @@ cfde_opportunity_numbers <- function(
 
   pattern <- "(RFA|OTA|NOT)-[A-Z]{2}-\\d{2}-\\d{3}"
 
-  regmatches(hrefs_filtered, regexpr(pattern, hrefs_filtered, perl=TRUE))
+  matches <- regmatches(hrefs_filtered, regexpr(pattern, hrefs_filtered, perl=TRUE))
+  matches <- na.omit(matches)
+  matches[nzchar(matches)]
 }
