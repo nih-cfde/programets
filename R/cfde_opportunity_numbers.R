@@ -11,8 +11,7 @@
 #' @importFrom rvest read_html html_nodes html_attr
 #' 
 #' 
-#' @param url The URL of the CFDE API endpoint.
-#' Default is set to the CFDE funding opportunities page.
+#' @param url The URL of the CFDE funding webpage
 #' @return a character vector of funding opportunity numbers.
 #' 
 #' @examples 

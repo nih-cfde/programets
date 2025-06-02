@@ -9,8 +9,7 @@ cfde_opportunity_numbers(
 )
 }
 \arguments{
-\item{url}{The URL of the CFDE API endpoint.
-Default is set to the CFDE funding opportunities page.}
+\item{url}{The URL of the CFDE funding webpage}
 }
 \value{
 a character vector of funding opportunity numbers.
