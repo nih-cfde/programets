@@ -125,7 +125,8 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
 
   # Add to df
   df$closed_issues <- closed_issue_counts
-  df %>% 
+  df <- 
+    df %>% 
     relocate(.data$closed_issues, .after = .data$open_issues)
   return(df)
 }
