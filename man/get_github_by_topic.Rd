@@ -22,7 +22,7 @@ Get GitHub Repositories by Topic
 }
 \examples{
 topics <- c("u24ca289073")
-df = get_github_by_topic(topics, limit = 50)
+df <- get_github_by_topic(topics, limit = 50)
 head(df)
 dplyr::glimpse(df)
 

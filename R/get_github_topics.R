@@ -5,17 +5,18 @@
 #'   will run without authentication.
 #' @param limit The maximum number of results to return. Defaults to 30.
 #' 
-#' @importFrom httr2 request req_url_query req_perform resp_status resp_body_json req_auth_bearer_token
-#' @importFrom glue glue_collapse
+#' @importFrom dplyr relocate
+#' @importFrom httr2 request req_url_query req_perform req_perform_parallel resp_status resp_body_json req_auth_bearer_token
+#' @importFrom glue glue glue_collapse
 #' @importFrom tibble tibble
-#' @importFrom purrr discard map_chr map_dbl
-#' @importFrom rlang %||%
+#' @importFrom purrr discard map_chr map_dbl pmap
+#' @importFrom rlang %||% .data
 #'
 #' @return A data frame containing the results of the search query.
 #'
 #' @examples
 #' topics <- c("u24ca289073")
-#' df = get_github_by_topic(topics, limit = 50)
+#' df <- get_github_by_topic(topics, limit = 50)
 #' head(df)
 #' dplyr::glimpse(df)
 #' 
@@ -70,6 +71,62 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     html_url = map_chr(results, ~ .x$html_url)
   )
 
+  # Get closed issues count
+  if (!is.null(token)) {
+    # browser()
+    # Build request objects
+    requests <- pmap(df, function(name, owner, ...) {
+      q <- glue("repo:{owner}/{name} type:issue state:closed")
+      request("https://api.github.com/search/issues") |>
+        req_url_query(q = q, per_page = 1) |>
+        req_headers("User-Agent" = "httr2") |>
+        req_auth_bearer_token(token)
+    })
+
+    # Break into batches of 30
+    batched_requests <- split(requests, ceiling(seq_along(requests) / 30))
+    responses <- list()
+    
+    for (batch in batched_requests) {
+      responses <- c(responses, req_perform_parallel(batch))
+      Sys.sleep(2) # Wait 2 seconds between batches 
+    }
+    
+    # Extract closed issue counts
+    closed_issue_counts <- map_dbl(responses, function(resp) {
+      if (inherits(resp, "httr2_response") && resp_status(resp) == 200) {
+        resp_body_json(resp)$total_count
+      } else {
+        NA_real_
+      }
+    })
+    
+  } else {
+    # Fallback to sequential mode
+    closed_issue_counts <- map_dbl(results, ~ {
+      owner <- .x$owner$login
+      repo <- .x$name
+      q <- glue::glue("repo:{owner}/{repo} type:issue state:closed")
+      
+      issues_req <- request("https://api.github.com/search/issues") |>
+        req_url_query(q = q, per_page = 1) |>
+        req_headers("User-Agent" = "httr2")
+
+      issues_resp <- tryCatch(req_perform(issues_req), error = function(e) NULL)
+
+      if (!is.null(issues_resp) && resp_status(issues_resp) == 200) {
+        content <- resp_body_json(issues_resp)
+        return(content$total_count)
+      }
+      
+      return(NA_real_)
+    })
+  }
+
+  # Add to df
+  df$closed_issues <- closed_issue_counts
+  df %>% 
+    relocate(.data$closed_issues, .after = .data$open_issues)
   return(df)
 }
 
