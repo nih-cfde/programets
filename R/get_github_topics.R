@@ -9,7 +9,7 @@
 #' @importFrom httr2 request req_url_query req_perform req_perform_parallel resp_status resp_body_json req_auth_bearer_token
 #' @importFrom glue glue glue_collapse
 #' @importFrom tibble tibble
-#' @importFrom purrr discard map_chr map_dbl pmap
+#' @importFrom purrr discard map_chr map_dbl map2_dbl pmap
 #' @importFrom rlang %||% .data
 #'
 #' @return A data frame containing the results of the search query.
@@ -27,31 +27,23 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     stop("At least one topic must be provided.")
   }
 
-  # Construct GitHub search query
   q_topic <- paste(sprintf("topic:%s", topics), collapse = " ")
 
-  # Build Topic Search Request
   req_topic <- request("https://api.github.com/search/repositories") |>
     req_url_query(q = q_topic, per_page = limit)
 
   if (!is.null(token)) {
-    req_topic <- req_topic |> 
-      req_auth_bearer_token(token)
+    req_topic <- req_topic |> req_auth_bearer_token(token)
   }
 
   resp_topic <- req_perform(req_topic)
 
-  # Check Response
   if (resp_status(resp_topic) != 200) {
     stop("GitHub API request failed: ", resp_status(resp_topic))
   }
 
-  # Parse JSON response
   content <- resp_body_json(resp_topic, simplifyVector = FALSE)
-
-  # Extract relevant fields
   results <- content$items
-
   if (length(results) == 0) return(data.frame())
 
   df <- tibble(
@@ -61,7 +53,7 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     stars = map_dbl(results, ~ .x$stargazers_count),
     watchers = map_dbl(results, ~ .x$watchers_count),
     forks = map_dbl(results, ~ .x$forks_count),
-    open_issues = map_dbl(results, ~ .x$open_issues_count),
+    open_issues_raw = map_dbl(results, ~ .x$open_issues_count),
     tags = map_chr(results, ~ glue_collapse(discard(unlist(.x$topics), ~ .x == topics), sep = ", ")), 
     language = map_chr(results, ~ .x$language %||% NA_character_),
     license = map_chr(results, ~ .x$license$name %||% NA_character_),
@@ -71,63 +63,62 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     html_url = map_chr(results, ~ .x$html_url)
   )
 
-  # Get closed issues count
-  if (!is.null(token)) {
-    # browser()
-    # Build request objects
-    requests <- pmap(df, function(name, owner, ...) {
-      q <- glue("repo:{owner}/{name} type:issue state:closed")
-      request("https://api.github.com/search/issues") |>
-        req_url_query(q = q, per_page = 1) |>
-        req_headers("User-Agent" = "httr2") |>
-        req_auth_bearer_token(token)
-    })
-
-    # Break into batches of 30
-    batched_requests <- split(requests, ceiling(seq_along(requests) / 30))
-    responses <- list()
-    
-    for (batch in batched_requests) {
-      responses <- c(responses, req_perform_parallel(batch))
-      Sys.sleep(2) # Wait 2 seconds between batches 
+  # Helper function to get count using Link header
+  get_count_from_link <- function(owner, repo, endpoint, state = "open", token = NULL) {
+    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/{endpoint}")
+    req <- request(base_url) |>
+      req_url_query(state = state, per_page = 1) |>
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> req_auth_bearer_token(token)
     }
-    
-    # Extract closed issue counts
-    closed_issue_counts <- map_dbl(responses, function(resp) {
-      if (inherits(resp, "httr2_response") && resp_status(resp) == 200) {
-        resp_body_json(resp)$total_count
-      } else {
-        NA_real_
-      }
-    })
-    
-  } else {
-    # Fallback to sequential mode
-    closed_issue_counts <- map_dbl(results, ~ {
-      owner <- .x$owner$login
-      repo <- .x$name
-      q <- glue::glue("repo:{owner}/{repo} type:issue state:closed")
-      
-      issues_req <- request("https://api.github.com/search/issues") |>
-        req_url_query(q = q, per_page = 1) |>
-        req_headers("User-Agent" = "httr2")
 
-      issues_resp <- tryCatch(req_perform(issues_req), error = function(e) NULL)
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
 
-      if (!is.null(issues_resp) && resp_status(issues_resp) == 200) {
-        content <- resp_body_json(issues_resp)
-        return(content$total_count)
-      }
-      
-      return(NA_real_)
-    })
+    link <- resp_headers(resp)[["link"]]
+    if (!is.null(link) && grepl("rel=\"last\"", link)) {
+      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
+      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
+      return(count)
+    } else {
+      body <- resp_body_json(resp)
+      return(length(body))
+    }
   }
 
-  # Add to df
+  # Helper function to get closed issue count via Search API (excluding PRs)
+  get_closed_issue_count <- function(owner, repo, token = NULL) {
+    q <- glue("repo:{owner}/{repo} type:issue state:closed")
+    req <- request("https://api.github.com/search/issues") |>
+      req_url_query(q = q, per_page = 1) |>
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> req_auth_bearer_token(token)
+    }
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (!is.null(resp) && resp_status(resp) == 200) {
+      return(resp_body_json(resp)$total_count)
+    } else {
+      return(NA_real_)
+    }
+  }
+
+  open_pr_counts <- map2_dbl(df$owner, df$name, ~ get_count_from_link(.x, .y, endpoint = "pulls", state = "open", token = token))
+  closed_pr_counts <- map2_dbl(df$owner, df$name, ~ get_count_from_link(.x, .y, endpoint = "pulls", state = "closed", token = token))
+  closed_issue_counts <- map2_dbl(df$owner, df$name, ~ get_closed_issue_count(.x, .y, token = token))
+
+  df$open_prs <- open_pr_counts
+  df$closed_prs <- closed_pr_counts
   df$closed_issues <- closed_issue_counts
-  df <- 
-    df %>% 
-    relocate(.data$closed_issues, .after = .data$open_issues)
+  df$open_issues <- df$open_issues_raw - df$open_prs
+
+  df <- df |> 
+    relocate(open_issues, .after = forks) |>
+    relocate(open_prs, .after = open_issues) |>
+    relocate(closed_issues, .after = open_prs) |>
+    relocate(closed_prs, .after = closed_issues) |>
+    select(-open_issues_raw)
+
   return(df)
 }
-
