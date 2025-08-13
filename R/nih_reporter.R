@@ -65,7 +65,7 @@
 #' @export
 #' @examples
 #' # Get publications for a set of core project numbers
-#' proj_info <- get_core_project_info(c("u54od036472", "99999999"))
+#' proj_info <- get_core_project_info(c("OT2OD030545", "99999999"))
 #' # View the results
 #' proj_info
 get_core_project_info <- function(core_project_numbers) {
@@ -83,7 +83,8 @@ get_core_project_info <- function(core_project_numbers) {
     req_headers("Content-Type" = "application/json") |>
     req_body_json(list(
       criteria = list(core_project_nums = core_project_numbers),
-      include_fields = list( "applid", "coreproject", "pmid")
+      include_fields = list( "applid", "coreproject", "pmid"),
+      limit = 500
     )) 
   
   # Attempt to perform req, with error handling
@@ -161,32 +162,32 @@ get_core_project_info <- function(core_project_numbers) {
     purrr::map_dfr(resp_proj$results, function(proj_info) {
       dplyr::tibble(
         appl_id = as.character(proj_info$appl_id),
-        core_project_num = as.character(proj_info$core_project_num),
-        subproject_id = as.character(proj_info$subproject_id),
-        fiscal_year = as.integer(proj_info$fiscal_year),
-        project_num = as.character(proj_info$project_num),
-        project_serial_num = as.character(proj_info$project_serial_num),
+        core_project_num = as.character(proj_info$core_project_num %||% NA_character_),
+        subproject_id = as.character(proj_info$subproject_id %||% NA_character_),
+        fiscal_year = as.integer(proj_info$fiscal_year %||% NA_integer_),
+        project_num = as.character(proj_info$project_num %||% NA_character_),
+        project_serial_num = as.character(proj_info$project_serial_num %||% NA_character_),
         organization = list(proj_info$organization),
-        award_type = as.character(proj_info$award_type),
-        activity_code = as.character(proj_info$activity_code),
+        award_type = as.character(proj_info$award_type %||% NA_character_),
+        activity_code = as.character(proj_info$activity_code %||% NA_character_),
         is_active = as.logical(proj_info$is_active),
         project_num_split = list(proj_info$project_num_split),
         principal_investigators = list(proj_info$principal_investigators),
-        contact_pi_name = as.character(proj_info$contact_pi_name),
+        contact_pi_name = as.character(proj_info$contact_pi_name %||% NA_character_),
         program_officers = list(proj_info$program_officers),
         agency_ic_admin = list(proj_info$agency_ic_admin),
         agency_ic_fundings = list(proj_info$agency_ic_fundings),
-        cong_dist = as.character(proj_info$cong_dist),
+        cong_dist = as.character(proj_info$cong_dist %||% NA_character_),
         spending_categories = paste(proj_info$spending_categories %||% NA_character_, collapse = "; "),
-        project_start_date = as.character(proj_info$project_start_date),
-        project_end_date = as.character(proj_info$project_end_date),
+        project_start_date = as.character(proj_info$project_start_date %||% NA_character_),
+        project_end_date = as.character(proj_info$project_end_date %||% NA_character_),
         organization_type = list(proj_info$organization_type),
         geo_lat_lon = list(proj_info$geo_lat_lon),
-        opportunity_number = as.character(proj_info$opportunity_number),
+        opportunity_number = as.character(proj_info$opportunity_number %||% NA_character_),
         full_study_section = list(proj_info$full_study_section),
-        award_notice_date = as.character(proj_info$award_notice_date),
+        award_notice_date = as.character(proj_info$award_notice_date %||% NA_character_),
         is_new = as.logical(proj_info$is_new),
-        mechanism_code_dc = as.character(proj_info$mechanism_code_dc),
+        mechanism_code_dc = as.character(proj_info$mechanism_code_dc %||% NA_character_),
         terms = as.character(proj_info$terms %||% NA_character_),
         pref_terms = as.character(proj_info$pref_terms %||% NA_character_),
         abstract_text = as.character(proj_info$abstract_text),
@@ -199,14 +200,15 @@ get_core_project_info <- function(core_project_numbers) {
         budget_start = as.character(proj_info$budget_start),
         budget_end = as.character(proj_info$budget_end),
         cfda_code = as.character(proj_info$cfda_code %||% NA_character_),
-        funding_mechanism = as.character(proj_info$funding_mechanism),
-        direct_cost_amt = as.integer(proj_info$direct_cost_amt),
-        indirect_cost_amt = as.integer(proj_info$indirect_cost_amt),
-        project_detail_url = as.character(proj_info$project_detail_url),
-        date_added = as.character(proj_info$date_added)
+        funding_mechanism = as.character(proj_info$funding_mechanism %||% NA_character_),
+        direct_cost_amt = as.integer(proj_info$direct_cost_amt %||% NA_integer_),
+        indirect_cost_amt = as.integer(proj_info$indirect_cost_amt %||% NA_integer_),
+        project_detail_url = as.character(proj_info$project_detail_url %||% NA_character_),
+        date_added = as.character(proj_info$date_added %||% NA_character_)
       )
     }
   )
+  proj_results_tbl
   all_results_combined <- 
     proj_results_tbl |> 
     full_join(all_results, by = c('core_project_num' = 'core_project_number', 'appl_id' = 'applid')) |> 
