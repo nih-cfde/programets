@@ -114,11 +114,11 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
   df$open_issues <- df$open_issues_raw - df$open_prs
 
   df <- df |> 
-    relocate(open_issues, .after = forks) |>
-    relocate(open_prs, .after = open_issues) |>
-    relocate(closed_issues, .after = open_prs) |>
-    relocate(closed_prs, .after = closed_issues) |>
-    select(-open_issues_raw)
+    relocate("open_issues", .after = "forks") |>
+    relocate("open_prs", .after = "open_issues") |>
+    relocate("closed_issues", .after = "open_prs") |>
+    relocate("closed_prs", .after = "closed_issues") |>
+    select(-"open_issues_raw")
 
   return(df)
 }
