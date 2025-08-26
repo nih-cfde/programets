@@ -73,7 +73,9 @@ get_core_project_info <- function(core_project_numbers) {
   if (!is.character(core_project_numbers)) {
     stop("Input must be a character vector")
   }
-
+  if(length(core_project_numbers) == 1) {
+    core_project_numbers <- c(core_project_numbers, "")
+  }
   # Convert input to uppercase
   core_project_numbers <- toupper(core_project_numbers)
 
