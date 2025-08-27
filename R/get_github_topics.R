@@ -29,6 +29,7 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
 
   q_topic <- paste(sprintf("topic:%s", topics), collapse = " ")
 
+  # Start with search endpoint
   req_topic <- request("https://api.github.com/search/repositories") |>
     req_url_query(q = q_topic, per_page = limit)
 
@@ -45,13 +46,28 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
   content <- resp_body_json(resp_topic, simplifyVector = FALSE)
   results <- content$items
   if (length(results) == 0) return(data.frame())
+  
+  # True watchers (subscribers) count
+  get_watchers_count <- function(owner, repo, token = NULL) {
+    url <- glue::glue("https://api.github.com/repos/{owner}/{repo}")
+    req <- httr2::request(url) |>
+      httr2::req_headers("User-Agent" = "httr2",
+                         "X-GitHub-Api-Version" = "2022-11-28")
+    if (!is.null(token)) req <- req |> httr2::req_auth_bearer_token(token)
+
+    resp <- tryCatch(httr2::req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || httr2::resp_status(resp) != 200) return(NA_real_)
+
+    body <- httr2::resp_body_json(resp)
+    as.numeric(body$subscribers_count %||% NA_real_)
+  }
 
   df <- tibble(
     name = map_chr(results, ~ .x$name),
     owner = map_chr(results, ~ .x$owner$login),
     description = map_chr(results, ~ .x$description %||% NA_character_),
     stars = map_dbl(results, ~ .x$stargazers_count),
-    watchers = map_dbl(results, ~ .x$watchers_count),
+    watchers = purrr::map2_dbl(df$owner, df$name, ~ get_watchers_count(.x, .y, token = token)),
     forks = map_dbl(results, ~ .x$forks_count),
     open_issues_raw = map_dbl(results, ~ .x$open_issues_count),
     tags = map_chr(results, ~ glue_collapse(discard(unlist(.x$topics), ~ .x == topics), sep = ", ")), 
@@ -145,7 +161,7 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
   get_contributor_count <- function(owner, repo, token = NULL) {
     base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
     req <- request(base_url) |>
-      req_url_query(per_page = 1, anon = "true") |>  # anon=TRUE counts contributors without accounts
+      req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
       req <- req |> req_auth_bearer_token(token)
