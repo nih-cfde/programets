@@ -27,6 +27,17 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     stop("At least one topic must be provided.")
   }
 
+  if(is.null(token)) {
+    rlang::inform(
+      rlang::format_error_bullets(c(
+        "!" = "No GitHub token provided. Running without authentication",
+        "i" = "Use of a Personal Access Token (PAT)is recommended for increased rate limits. Create a token with: usethis::create_github_token()")
+      ), 
+      .frequency = "regularly", 
+      .frequency_id = "get_github_by_topic"
+    )
+  }
+
   q_topic <- paste(sprintf("topic:%s", topics), collapse = " ")
 
   # Start with search endpoint
