@@ -214,7 +214,7 @@ get_core_project_info <- function(core_project_numbers) {
   all_results_combined <- 
     proj_results_tbl |> 
     full_join(all_results, by = c('core_project_num' = 'core_project_number', 'appl_id' = 'applid')) |> 
-    filter(core_project_num != "") |>
+    filter(.data$core_project_num != "") |>
     relocate(.data$core_project_num, .before = .data$appl_id) |> 
     relocate(.data$found_publication, .after = .data$core_project_num)
 
