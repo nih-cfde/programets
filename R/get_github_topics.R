@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' topics <- c("u24ca289073")
-#' df <- get_github_by_topic(topics, limit = 50)
+#' df <- get_github_by_topic(topics, limit = 5)
 #' head(df)
 #' dplyr::glimpse(df)
 #' 
@@ -113,11 +113,70 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
   df$closed_issues <- closed_issue_counts
   df$open_issues <- df$open_issues_raw - df$open_prs
 
+  # Other Repo Stats
+  # Helper to count commits
+  get_commit_count <- function(owner, repo, token = NULL, branch = "HEAD") {
+    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/commits")
+    req <- request(base_url) |>
+      req_url_query(sha = branch, per_page = 1) |>
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> req_auth_bearer_token(token)
+    }
+
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
+
+    link <- resp_headers(resp)[["link"]]
+    if (!is.null(link) && grepl("rel=\"last\"", link)) {
+      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
+      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
+      return(count)
+    } else {
+      body <- resp_body_json(resp)
+      return(length(body))  # fewer than one page of commits
+    }
+  }
+
+  commit_counts <- map2_dbl(df$owner, df$name, ~ get_commit_count(.x, .y, token = token))
+  df$commits <- commit_counts
+
+  # Helper to count contributors
+  get_contributor_count <- function(owner, repo, token = NULL) {
+    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
+    req <- request(base_url) |>
+      req_url_query(per_page = 1, anon = "true") |>  # anon=TRUE counts contributors without accounts
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> req_auth_bearer_token(token)
+    }
+
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
+
+    link <- resp_headers(resp)[["link"]]
+    if (!is.null(link) && grepl("rel=\"last\"", link)) {
+      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
+      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
+      return(count)
+    } else {
+      body <- resp_body_json(resp)
+      return(length(body))  # if only a few contributors
+    }
+  }
+
+  contributor_counts <- map2_dbl(df$owner, df$name, ~ get_contributor_count(.x, .y, token = token))
+  df$contributors <- contributor_counts
+
+
+
   df <- df |> 
     relocate("open_issues", .after = "forks") |>
     relocate("open_prs", .after = "open_issues") |>
     relocate("closed_issues", .after = "open_prs") |>
     relocate("closed_prs", .after = "closed_issues") |>
+    relocate("commits", .after = "closed_prs") |>
+    relocate("contributors", .after = "commits") |>
     select(-"open_issues_raw")
 
   return(df)
