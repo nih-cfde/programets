@@ -5,7 +5,7 @@
 #'
 #' @param core_project_numbers A character vector of core project numbers.
 #'
-#' @importFrom dplyr arrange bind_rows full_join mutate relocate tibble
+#' @importFrom dplyr arrange bind_rows filter full_join mutate relocate tibble
 #' @importFrom purrr map_dfr
 #' @importFrom httr2 req_body_json req_headers req_method req_perform resp_body_json request
 #' @importFrom rlang .data abort inform format_error_bullets
