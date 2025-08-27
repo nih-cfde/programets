@@ -67,7 +67,7 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     owner = map_chr(results, ~ .x$owner$login),
     description = map_chr(results, ~ .x$description %||% NA_character_),
     stars = map_dbl(results, ~ .x$stargazers_count),
-    watchers = purrr::map2_dbl(df$owner, df$name, ~ get_watchers_count(.x, .y, token = token)),
+    watchers = purrr::map_dbl(results, ~ get_watchers_count(.x$owner$login, .x$name, token = token)),
     forks = map_dbl(results, ~ .x$forks_count),
     open_issues_raw = map_dbl(results, ~ .x$open_issues_count),
     tags = map_chr(results, ~ glue_collapse(discard(unlist(.x$topics), ~ .x == topics), sep = ", ")), 
