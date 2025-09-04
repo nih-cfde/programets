@@ -128,6 +128,17 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   # Fetch across all topics and combine
   df <- purrr::map_dfr(topics, fetch_topic)
 
+  if (nrow(df) == 0) {
+    expected_cols <- c(
+      "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs",
+      "closed_issues", "closed_prs", "commits", "contributors", "tags", "language", "license",
+      "created_at", "pushed_at", "updated_at", "html_url", "queried_topic"
+    )
+    df <- tibble::tibble(
+        !!!setNames(rep(list(NA), length(expected_cols)), expected_cols)
+      ) %>% 
+       filter(!is.na(.data$name))
+  }
   # Organize columns like before
   df <- df |>
     dplyr::relocate('open_prs', .after = 'open_issues') |>
