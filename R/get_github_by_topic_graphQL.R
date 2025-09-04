@@ -4,11 +4,12 @@
 #' @param token A GitHub personal access token. Required for GraphQL API.
 #' @param limit The maximum number of repositories to return per topic (max 1000 by GitHub).
 #' 
-#' @importFrom ghql GraphqlClient gql
+#' @importFrom ghql GraphqlClient
 #' @importFrom jsonlite fromJSON
 #' @importFrom tibble tibble
 #' @importFrom purrr map_dfr
 #' @importFrom dplyr relocate
+#' @importFrom stats setNames
 #'
 #' @return A data frame with repository metadata.
 #'

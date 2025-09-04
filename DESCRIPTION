@@ -30,6 +30,7 @@ Imports:
     ghql
 Suggests:
     gargle,
+    gitcreds,
     knitr,
     quarto,
     lubridate,
