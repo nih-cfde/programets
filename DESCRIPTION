@@ -26,7 +26,8 @@ Imports:
     jsonlite,
     stringr,
     tibble,
-    glue
+    glue,
+    ghql
 Suggests:
     gargle,
     knitr,
