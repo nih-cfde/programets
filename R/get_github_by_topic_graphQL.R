@@ -28,6 +28,8 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   if (length(topics) == 0) {
     stop("At least one topic must be provided.")
   }
+
+  topics <- tolower(topics)
   
   # Set up client
   cli <- ghql::GraphqlClient$new(
