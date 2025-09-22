@@ -9,9 +9,11 @@
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-The goal of programets is to gather metrics from iCite, Google
-Analytics, GitHub, and other sources to help assess the impact of your
-NIH Project on the broader research community.
+The goal of programets is to compile public metrics from iCite, Google
+Analytics, GitHub, and related sources to help researchers understand
+how their NIH project engages with the broader research community. The
+package is designed to highlight how project impact evolves over time,
+such as in response to publications or events.
 
 ## Installation
 
