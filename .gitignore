@@ -3,3 +3,5 @@ inst/doc
 docs
 .vscode/
 terraform/
+/.quarto/
+**/*.quarto_ipynb

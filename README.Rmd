@@ -1,0 +1,50 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# programets
+
+<!-- badges: start -->
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+<!-- badges: end -->
+
+The goal of programets is to gather metrics from iCite, Google Analytics, GitHub, and other sources to help assess the impact of your NIH Project on the broader research community. 
+
+## Installation
+
+You can install the development version of programets from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("nih-cfde/programets")
+```
+
+## Example Usage
+
+Query the NIH RePORTER:
+
+```{r reporter_example}
+library(programets)
+
+proj_info <- get_core_project_info(c("u24ca289073"))
+proj_info |> colnames()
+```
+
+Tag your GitHub repositories with NIH Core Project Numbers to download common metrics:
+
+```{r git_example}
+df <- get_github_by_topic(c("u24ca289073"))
+df |> colnames()
+```
+
