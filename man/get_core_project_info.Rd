@@ -67,7 +67,7 @@ including any assosciated publications from the NIH RePORTER API.
 }
 \examples{
 # Get publications for a set of core project numbers
-proj_info <- get_core_project_info(c("u54od036472", "99999999"))
+proj_info <- get_core_project_info(c("OT2OD030545", "99999999"))
 # View the results
 proj_info
 }

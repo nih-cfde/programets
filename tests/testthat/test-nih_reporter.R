@@ -32,11 +32,11 @@ test_that("get_core_project_info returns expected columns", {
 
 test_that("get_core_project_info handles missing publications", {
   core_project_numbers <- c("u54od036472", "99999999")
-  result <- get_core_project_info(core_project_numbers)
+  result <- get_core_project_info(core_project_numbers) %>% 
+    arrange(appl_id)
   expect_equal(nrow(result), 9)
-  expect_equal(result$found_publication[7], FALSE)
-  expect_equal(result$found_publication[8], TRUE)
-  expect_equal(result$found_publication[9], TRUE)
+  expect_equal(result %>% filter(appl_id == '11054656') %>% pull(found_publication), TRUE)
+  expect_equal(result %>% filter(core_project_num == "99999999") %>% pull(found_publication), FALSE)
 })
 
 test_that("get_core_project_info handles invalid input", {
