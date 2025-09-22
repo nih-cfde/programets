@@ -26,9 +26,11 @@ Imports:
     jsonlite,
     stringr,
     tibble,
-    glue
+    glue,
+    ghql
 Suggests:
     gargle,
+    gitcreds,
     knitr,
     quarto,
     lubridate,
