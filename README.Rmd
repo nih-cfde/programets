@@ -62,7 +62,7 @@ Available fields include: project title, abstract, funding amounts, dates, PIs, 
 
 ### 2. Get GitHub Repository Metrics
 
-If your project repositories are tagged with NIH Core Project Numbers as topics, you can automatically collect engagement metrics:
+If your project repositories are tagged with NIH Core Project Numbers as topics, you can collect engagement metrics:
 
 ```{r git_example}
 # Fetch GitHub metrics for repos tagged with your project number
@@ -72,7 +72,7 @@ df |> colnames()
 
 Metrics include: stars, watchers, forks, open/closed issues, open/closed PRs, commit count, contributor count, and more.
 
-**Tip:** Tag your GitHub repositories with your NIH Core Project Number (e.g., `u24ca289073`) to enable automatic discovery.
+**Tip:** Tag your GitHub repositories with your NIH Core Project Number (e.g., `u24ca289073`) to enable discovery.
 
 ### 3. Get Citation Metrics from iCite
 
