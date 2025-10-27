@@ -165,5 +165,5 @@ googleAnalyticsR::ga_auth()
 
 ## License
 
-MIT + file LICENSE
+MIT
 
