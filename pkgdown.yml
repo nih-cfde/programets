@@ -1,7 +1,10 @@
-pandoc: 3.6.4
-pkgdown: 2.1.1
+pandoc: 3.1.11
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   effective_google_analytics: effective_google_analytics.html
   googleanalytics: googleanalytics.html
-last_built: 2025-05-21T19:31Z
+last_built: 2025-10-28T14:22Z
+urls:
+  reference: https://seandavi.github.io/programets/reference
+  article: https://seandavi.github.io/programets/articles

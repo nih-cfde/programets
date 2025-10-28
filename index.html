@@ -44,6 +44,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/nih-cfde/programets/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -51,9 +52,221 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-Collect and analyze academic impact metrics from various sources. The package provides functions to collect and analyze data from NIH reporter, pubmed, github, NIH ICITE, Google Analytics, and other sources. It also includes functions to visualize and report on the data.
-  </main><aside class="col-md-3"><div class="license">
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="programets">programets<a class="anchor" aria-label="anchor" href="#programets"></a>
+</h1></div>
+<!-- badges: start -->
+
+<p><strong>programets</strong> is an R package for collecting and analyzing academic impact metrics for NIH-funded research projects. It aggregates data from multiple public sources to help researchers, program managers, and evaluators understand how their projects engage with the broader research community over time.</p>
+<div class="section level2">
+<h2 id="what-does-it-do">What Does It Do?<a class="anchor" aria-label="anchor" href="#what-does-it-do"></a>
+</h2>
+<p>The package provides unified access to:</p>
+<ul>
+<li>
+<strong>NIH RePORTER</strong> - Project metadata, funding details, and associated publications</li>
+<li>
+<strong>iCite</strong> - Citation metrics including Relative Citation Ratio (RCR) for PubMed publications</li>
+<li>
+<strong>GitHub</strong> - Repository metrics (stars, forks, commits, contributors, issues, PRs) for projects tagged with NIH Core Project Numbers</li>
+<li>
+<strong>Google Analytics</strong> - Web traffic and engagement data for project websites</li>
+<li>
+<strong>Europe PMC</strong> - Literature search across millions of publications</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install the development version from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"nih-cfde/programets"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Requirements:</strong> - R &gt;= 4.1.0 - For GitHub data: A Personal Access Token is recommended for higher rate limits</p>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="section level3">
+<h3 id="id_1-query-nih-reporter-for-project-information">1. Query NIH RePORTER for Project Information<a class="anchor" aria-label="anchor" href="#id_1-query-nih-reporter-for-project-information"></a>
+</h3>
+<p>Retrieve comprehensive project metadata including publications, funding details, and principal investigators:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nih-cfde.github.io/programets/" class="external-link">programets</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get project info for one or more NIH Core Project Numbers</span></span>
+<span><span class="va">proj_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_core_project_info.html">get_core_project_info</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u24ca289073"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">proj_info</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "core_project_num"         "found_publication"       </span></span>
+<span><span class="co">#&gt;  [3] "appl_id"                  "subproject_id"           </span></span>
+<span><span class="co">#&gt;  [5] "fiscal_year"              "project_num"             </span></span>
+<span><span class="co">#&gt;  [7] "project_serial_num"       "organization"            </span></span>
+<span><span class="co">#&gt;  [9] "award_type"               "activity_code"           </span></span>
+<span><span class="co">#&gt; [11] "is_active"                "project_num_split"       </span></span>
+<span><span class="co">#&gt; [13] "principal_investigators"  "contact_pi_name"         </span></span>
+<span><span class="co">#&gt; [15] "program_officers"         "agency_ic_admin"         </span></span>
+<span><span class="co">#&gt; [17] "agency_ic_fundings"       "cong_dist"               </span></span>
+<span><span class="co">#&gt; [19] "spending_categories"      "project_start_date"      </span></span>
+<span><span class="co">#&gt; [21] "project_end_date"         "organization_type"       </span></span>
+<span><span class="co">#&gt; [23] "geo_lat_lon"              "opportunity_number"      </span></span>
+<span><span class="co">#&gt; [25] "full_study_section"       "award_notice_date"       </span></span>
+<span><span class="co">#&gt; [27] "is_new"                   "mechanism_code_dc"       </span></span>
+<span><span class="co">#&gt; [29] "terms"                    "pref_terms"              </span></span>
+<span><span class="co">#&gt; [31] "abstract_text"            "project_title"           </span></span>
+<span><span class="co">#&gt; [33] "phr_text"                 "spending_categories_desc"</span></span>
+<span><span class="co">#&gt; [35] "agency_code"              "covid_response"          </span></span>
+<span><span class="co">#&gt; [37] "arra_funded"              "budget_start"            </span></span>
+<span><span class="co">#&gt; [39] "budget_end"               "cfda_code"               </span></span>
+<span><span class="co">#&gt; [41] "funding_mechanism"        "direct_cost_amt"         </span></span>
+<span><span class="co">#&gt; [43] "indirect_cost_amt"        "project_detail_url"      </span></span>
+<span><span class="co">#&gt; [45] "date_added"               "pmid"                    </span></span>
+<span><span class="co">#&gt; [47] "pubmed_url"</span></span></code></pre></div>
+<p>Available fields include: project title, abstract, funding amounts, dates, PIs, publications (PMIDs), and more.</p>
+</div>
+<div class="section level3">
+<h3 id="id_2-get-github-repository-metrics">2. Get GitHub Repository Metrics<a class="anchor" aria-label="anchor" href="#id_2-get-github-repository-metrics"></a>
+</h3>
+<p>If your project repositories are tagged with NIH Core Project Numbers as topics, you can collect engagement metrics:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Fetch GitHub metrics for repos tagged with your project number</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_github_by_topic.html">get_github_by_topic</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u24ca289073"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ! No GitHub token provided. Running without authentication</span></span>
+<span><span class="co">#&gt; ℹ Use of a Personal Access Token (PAT)is recommended for increased rate limits. Create a token with: usethis::create_github_token()</span></span>
+<span><span class="co">#&gt; This message is displayed once every 8 hours.</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "name"          "owner"         "description"   "stars"        </span></span>
+<span><span class="co">#&gt;  [5] "watchers"      "forks"         "open_issues"   "open_prs"     </span></span>
+<span><span class="co">#&gt;  [9] "closed_issues" "closed_prs"    "commits"       "contributors" </span></span>
+<span><span class="co">#&gt; [13] "tags"          "language"      "license"       "created_at"   </span></span>
+<span><span class="co">#&gt; [17] "pushed_at"     "updated_at"    "html_url"</span></span></code></pre></div>
+<p>Metrics include: stars, watchers, forks, open/closed issues, open/closed PRs, commit count, contributor count, and more.</p>
+<p><strong>Tip:</strong> Tag your GitHub repositories with your NIH Core Project Number (e.g., <code>u24ca289073</code>) to enable discovery.</p>
+</div>
+<div class="section level3">
+<h3 id="id_3-get-citation-metrics-from-icite">3. Get Citation Metrics from iCite<a class="anchor" aria-label="anchor" href="#id_3-get-citation-metrics-from-icite"></a>
+</h3>
+<p>Calculate impact metrics including the Relative Citation Ratio (RCR) for your publications:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get citation metrics for PubMed IDs</span></span>
+<span><span class="va">pmids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">26001965</span>, <span class="fl">25015380</span><span class="op">)</span></span>
+<span><span class="va">citation_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/icite.html">icite</a></span><span class="op">(</span><span class="va">pmids</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View RCR and other metrics</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">citation_data</span>, <span class="va">pmid</span>, <span class="va">title</span>, <span class="va">year</span>, </span>
+<span>              <span class="va">relative_citation_ratio</span>, <span class="va">citation_count</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_4-search-europe-pmc-for-publications">4. Search Europe PMC for Publications<a class="anchor" aria-label="anchor" href="#id_4-search-europe-pmc-for-publications"></a>
+</h3>
+<p>Query millions of publications with flexible search syntax:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Search for publications related to CRISPR</span></span>
+<span><span class="va">crispr_pubs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/epmc_search.html">epmc_search</a></span><span class="op">(</span>query <span class="op">=</span> <span class="st">"crispr"</span>, page_limit <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Search by author</span></span>
+<span><span class="va">author_pubs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/epmc_search.html">epmc_search</a></span><span class="op">(</span>query <span class="op">=</span> <span class="st">'AUTH:"Smith J"'</span>, page_limit <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_5-access-google-analytics-data">5. Access Google Analytics Data<a class="anchor" aria-label="anchor" href="#id_5-access-google-analytics-data"></a>
+</h3>
+<p>Retrieve web traffic data for project websites (requires authentication):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Authenticate with Google (first time only)</span></span>
+<span><span class="fu">googleAnalyticsR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_auth.html" class="external-link">ga_auth</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get traffic data</span></span>
+<span><span class="va">traffic</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ga_dataframe.html">ga_dataframe</a></span><span class="op">(</span></span>
+<span>  property_id <span class="op">=</span> <span class="st">"123456789"</span>,</span>
+<span>  start_date <span class="op">=</span> <span class="st">"2024-01-01"</span>,</span>
+<span>  end_date <span class="op">=</span> <span class="st">"2024-12-31"</span>,</span>
+<span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"activeUsers"</span>, <span class="st">"sessions"</span><span class="op">)</span>,</span>
+<span>  dimensions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"date"</span>, <span class="st">"country"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
+</h2>
+<div class="section level3">
+<h3 id="github">GitHub<a class="anchor" aria-label="anchor" href="#github"></a>
+</h3>
+<p>For increased API rate limits, set up a Personal Access Token:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create a token with: usethis::create_github_token()</span></span>
+<span><span class="co"># Then use it in your calls:</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_github_by_topic.html">get_github_by_topic</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u24ca289073"</span><span class="op">)</span>, token <span class="op">=</span> <span class="st">"your_token_here"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="google-analytics">Google Analytics<a class="anchor" aria-label="anchor" href="#google-analytics"></a>
+</h3>
+<p>First-time setup requires authentication:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Opens browser for Google account authorization</span></span>
+<span><span class="fu">googleAnalyticsR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_auth.html" class="external-link">ga_auth</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># For non-interactive use, see DEVELOPER.md for service account setup</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="use-cases">Use Cases<a class="anchor" aria-label="anchor" href="#use-cases"></a>
+</h2>
+<ul>
+<li>
+<strong>Impact Reporting</strong>: Generate comprehensive reports combining publication citations, web traffic, and GitHub engagement</li>
+<li>
+<strong>Trend Analysis</strong>: Track how metrics evolve over time in response to publications, presentations, or events</li>
+<li>
+<strong>Portfolio Management</strong>: Compare metrics across multiple projects or funding opportunities</li>
+<li>
+<strong>Compliance</strong>: Document project outputs and community engagement for progress reports</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<ul>
+<li>
+<strong>Function Reference</strong>: See <code><a href="reference/get_core_project_info.html">?get_core_project_info</a></code>, <code><a href="reference/icite.html">?icite</a></code>, <code><a href="reference/get_github_by_topic.html">?get_github_by_topic</a></code>, etc.</li>
+<li>
+<strong>Vignettes</strong>: Browse vignettes for detailed workflows</li>
+<li>
+<strong>Developer Notes</strong>: See <code>DEVELOPER.md</code> for advanced setup (service accounts, encryption)</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
+<ul>
+<li>File issues at: <a href="https://github.com/nih-cfde/programets/issues" class="external-link uri">https://github.com/nih-cfde/programets/issues</a>
+</li>
+<li>Review examples in the vignettes</li>
+<li>Check function documentation with <code>?function_name</code>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="authors">Authors<a class="anchor" aria-label="anchor" href="#authors"></a>
+</h2>
+<ul>
+<li>Sean Davis (<a href="mailto:seandavi@gmail.com" class="email">seandavi@gmail.com</a>)</li>
+<li>David Mayer (<a href="mailto:david.mayer@cuanschutz.edu" class="email">david.mayer@cuanschutz.edu</a>)</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p>MIT</p>
+</div>
+</div>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/nih-cfde/programets/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/nih-cfde/programets/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
@@ -61,6 +274,12 @@ Collect and analyze academic impact metrics from various sources. The package pr
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -72,12 +291,17 @@ Collect and analyze academic impact metrics from various sources. The package pr
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Sean Davis <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-8991-6458" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>David Mayer <br><small class="roles"> Author </small>  </li>
+<li>Sean Davis <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-8991-6458" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>David Mayer <br><small class="roles"> Author </small>   </li>
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
@@ -88,7 +312,7 @@ Collect and analyze academic impact metrics from various sources. The package pr
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

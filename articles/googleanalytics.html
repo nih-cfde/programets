@@ -44,6 +44,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/nih-cfde/programets/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -58,7 +59,7 @@
 
 
 
-
+      <small class="dont-index">Source: <a href="https://github.com/nih-cfde/programets/blob/main/vignettes/googleanalytics.qmd" class="external-link"><code>vignettes/googleanalytics.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -78,27 +79,23 @@
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## setup</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/8-bit-sheep/googleAnalyticsR/" class="external-link">googleAnalyticsR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">programets</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/8-bit-sheep/googleAnalyticsR/" class="external-link">googleAnalyticsR</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nih-cfde.github.io/programets/" class="external-link">programets</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## authenticate</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_auth.html" class="external-link">ga_auth</a></span><span class="op">(</span>email <span class="op">=</span> <span class="st">"seandavi@gmail.com"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_auth.html" class="external-link">ga_auth</a></span><span class="op">(</span>email <span class="op">=</span> <span class="st">"seandavi@gmail.com"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="cell">
 <pre><code><span><span class="co">#&gt; ℹ Authenticating using ga4-api-accessor@bioconductor-ga4-home.iam.gserviceaccount.com</span></span></code></pre>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## get your accounts</span></span>
-<span><span class="va">account_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_account_list.html" class="external-link">ga_account_list</a></span><span class="op">(</span><span class="st">"ga4"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">account_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/googleAnalyticsR/man/ga_account_list.html" class="external-link">ga_account_list</a></span><span class="op">(</span><span class="st">"ga4"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## account_list will have a column called "viewId"</span></span>
-<span><span class="va">account_list</span><span class="op">$</span><span class="va">viewId</span></span>
-<span><span class="co">#&gt; Warning: Unknown or uninitialised column: `viewId`.</span></span>
-<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">## account_list will have a column called "propertyId"</span></span>
+<span><span class="va">account_list</span><span class="op">$</span><span class="va">propertyId</span></span>
+<span><span class="co">#&gt; [1] "388188354"</span></span>
 <span></span>
 <span><span class="co">## View account_list and pick the one that you want to use</span></span>
 <span><span class="co">## In this case, we will use Bioconductor</span></span>
@@ -107,8 +104,7 @@
 <p>The resulting <code>res</code> object will contain the data for the specified date range, metrics, and dimensions. You can view the first few rows of the data using the <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code> function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/8-bit-sheep/googleAnalyticsR/" class="external-link">googleAnalyticsR</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'lubridate'</span></span>
 <span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
@@ -126,7 +122,7 @@
 <span>    date_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">start_date</span>, <span class="va">end_date</span><span class="op">)</span>,</span>
 <span>    limit <span class="op">=</span> <span class="op">-</span><span class="fl">1</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ 2025-05-21 15:31:40.786638 &gt; Downloaded [ 84095 ] of total [ 84095 ] rows</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ 2025-10-28 14:23:39.580382 &gt; Downloaded [ 82236 ] of total [ 82236 ] rows</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
@@ -148,13 +144,13 @@
 <span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span></span>
 <span><span class="co"># Group by user type and country, then calculate rolling average</span></span>
-<span><span class="va">moving_avg_data</span> <span class="op">&lt;-</span> <span class="va">daily_user_country_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">newVsReturning</span>, <span class="va">country</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">moving_avg_data</span> <span class="op">&lt;-</span> <span class="va">daily_user_country_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">date</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">newVsReturning</span>, <span class="va">country</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>        activeUsers_7day_avg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/zoo/man/rollmean.html" class="external-link">rollmean</a></span><span class="op">(</span><span class="va">activeUsers</span>, k <span class="op">=</span> <span class="fl">7</span>, fill <span class="op">=</span> <span class="cn">NA</span>, align <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span>,</span>
 <span>        sessions_7day_avg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/zoo/man/rollmean.html" class="external-link">rollmean</a></span><span class="op">(</span><span class="va">sessions</span>, k <span class="op">=</span> <span class="fl">7</span>, fill <span class="op">=</span> <span class="cn">NA</span>, align <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Let's see the results</span></span>
@@ -162,18 +158,18 @@
 <span><span class="co">#&gt; # A tibble: 6 × 7</span></span>
 <span><span class="co">#&gt;   date       newVsReturning country    activeUsers sessions activeUsers_7day_avg</span></span>
 <span><span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;          &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;                &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 2024-05-21 returning      United St…        1228     1735                   NA</span></span>
-<span><span class="co">#&gt; 2 2024-05-21 new            United St…        1160     1161                   NA</span></span>
-<span><span class="co">#&gt; 3 2024-05-21 returning      China              793     1192                   NA</span></span>
-<span><span class="co">#&gt; 4 2024-05-21 new            China              767      764                   NA</span></span>
-<span><span class="co">#&gt; 5 2024-05-21 returning      United Ki…         297      441                   NA</span></span>
-<span><span class="co">#&gt; 6 2024-05-21 returning      Germany            230      337                   NA</span></span>
+<span><span class="co">#&gt; 1 2024-10-28 returning      United St…        1159     1624                   NA</span></span>
+<span><span class="co">#&gt; 2 2024-10-28 new            United St…         968      967                   NA</span></span>
+<span><span class="co">#&gt; 3 2024-10-28 returning      China              800     1184                   NA</span></span>
+<span><span class="co">#&gt; 4 2024-10-28 new            China              700      701                   NA</span></span>
+<span><span class="co">#&gt; 5 2024-10-28 returning      United Ki…         203      276                   NA</span></span>
+<span><span class="co">#&gt; 6 2024-10-28 returning      Germany            199      264                   NA</span></span>
 <span><span class="co">#&gt; # ℹ 1 more variable: sessions_7day_avg &lt;dbl&gt;</span></span>
 <span></span>
 <span><span class="co"># Plot the moving average for active users</span></span>
-<span><span class="va">moving_avg_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">date</span>, <span class="va">newVsReturning</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>activeUsers_7day_avg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">activeUsers_7day_avg</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">moving_avg_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">date</span>, <span class="va">newVsReturning</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>activeUsers_7day_avg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">activeUsers_7day_avg</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">date</span>, y <span class="op">=</span> <span class="va">activeUsers_7day_avg</span>, color <span class="op">=</span> <span class="va">newVsReturning</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
@@ -283,7 +279,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
