@@ -40,5 +40,6 @@ Suggests:
     testthat (>= 3.0.0),
     zoo
 VignetteBuilder: quarto
-URL: https://seandavi.github.io/programets/
+URL: https://nih-cfde.github.io/programets/
+BugReports: https://github.com/nih-cfde/programets/issues
 Config/testthat/edition: 3
