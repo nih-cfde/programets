@@ -6,7 +6,9 @@
 ^pkgdown$
 ^.lintr$
 .vscode$
+^\.github$
 terraform/
 DEVELOPER.md
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
+
