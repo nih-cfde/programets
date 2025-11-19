@@ -6,7 +6,7 @@ test_that("ga_dataframe returns expected tibble", {
   json_file <- gargle::secret_decrypt_json(
     path = system.file(
       "secret",
-      "ga4-acess-keyfile.json",
+      "ga4-access-keyfile.json",
       package = "programets"
     ),
     key = "GARGLE_ENCRYPTION_KEY"
