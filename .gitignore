@@ -5,3 +5,5 @@ docs
 terraform/
 /.quarto/
 **/*.quarto_ipynb
+inst/secret/cfde-access-keyfile.json
+*.xlsx

@@ -4,7 +4,7 @@
 \alias{export_excel}
 \title{Export to Excel}
 \usage{
-export_excel(core_project_numbers)
+export_excel(core_project_numbers, token = gitcreds::gitcreds_get()$password)
 }
 \description{
 Export to Excel
