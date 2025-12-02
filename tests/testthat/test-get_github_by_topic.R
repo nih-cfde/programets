@@ -19,8 +19,9 @@ test_that("Returned data frame contains expected columns", {
 
   result <- get_github_by_topic(c("bioinformatics"), limit = 3)
   expected_cols <- c(
-    "name", "owner", "stars", "forks", "open_issues",
-    "language", "license", "created_at", "pushed_at", "updated_at", "html_url"
+     "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs", 
+     "closed_issues", "closed_prs", "commits", "contributors", "tags", "language", "license", 
+     "created_at", "pushed_at", "updated_at", "html_url"
   )
   expect_true(all(expected_cols %in% names(result)))
 })

@@ -4,3 +4,4 @@ template:
   bslib:
     bootswatch: materia
     pkgdown-nav-height: 100px
+
