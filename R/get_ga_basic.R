@@ -12,13 +12,13 @@
 #' 
 #' @return A data frame containing the associated Google Analytics data
 #' @export
-get_ga_basic <- function(core_project_numbers, token = 'cfde-access-keyfile.json') {
+get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-access-keyfile.json') {
   ## This function requires authentication, check for existing creds
-  if(file.exists(system.file("secret", token, package = "programets"))){
+  if(file.exists(system.file("secret", service_account_json, package = "programets"))){
     json_file <- gargle::secret_decrypt_json(
       path = system.file(
         "secret",
-        "cfde-access-keyfile.json",
+        service_account_json,
         package = "programets"
       ),
       key = "CFDE_ENCRYPTION_KEY"
