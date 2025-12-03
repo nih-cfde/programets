@@ -1,4 +1,7 @@
-export_project <- function(core_project_numbers, export = c("csv", "json", "excel")) {
+export_project <- function(
+  core_project_numbers, export = c("csv", "json", "excel"), 
+  token = gitcreds::gitcreds_get()$password, 
+  service_account_json = 'cfde-access-keyfile.json', file) {
   
   export <- match.arg(export)
   
@@ -34,7 +37,7 @@ export_js <- function(core_project_numbers) {
 #' test_projects <-c("OT2OD030545")
 #' }
 #' 
-export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$password) {
+export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$password, service_account_json = 'cfde-access-keyfile.json', file) {
 
   ## Create Excel Workbook
   wb <- createWorkbook()
@@ -59,10 +62,7 @@ export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$
 
   ## Add Google Analytics
   addWorksheet(wb, "ga_info")
-  
-  writeData(wb = wb, sheet = "ga_info", x = account_list, na.string = "")
-
-  ga_info <- get_ga_meta_by_id(core_project_numbers)
+  ga_info <- get_ga_basic(core_project_numbers = core_project_numbers, service_account_json = service_account_json)
   writeData(wb = wb, sheet = "ga_info", x = ga_info, na.string = "")
 
   ## Save Workbook
