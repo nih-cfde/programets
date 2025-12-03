@@ -18,8 +18,10 @@
 #' @export
 get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-access-keyfile.json') {
   ## This function requires authentication, check for existing creds
-  if(file.exists(system.file("secret", service_account_json, package = "programets"))){
-    json_file <- gargle::secret_decrypt_json(
+  ## Package Credentials
+  if(file.exists(system.file("secret", service_account_json, package = "programets")) &&
+    !is.null(Sys.getenv("CFDE_ENCRYPTION_KEY"))){
+    programets_service_account <- gargle::secret_decrypt_json(
       path = system.file(
         "secret",
         service_account_json,
@@ -28,8 +30,12 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
       key = "CFDE_ENCRYPTION_KEY"
     )
     googleAnalyticsR::ga_auth(
-      json_file = json_file
+      json_file = programets_service_account
     )
+  ## User SA Credentials
+  } else if (file.exists(service_account_json)) {
+    ga_auth(json_file = service_account_json)
+  ## Interactive Auth
   } else {
     ga_auth()
   }
