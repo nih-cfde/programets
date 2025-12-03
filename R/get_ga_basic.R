@@ -31,7 +31,7 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
   }
   
   ## Get All Analytics Properties
-  core_project_regex <- paste0(core_project_numbers, collapse = "|")
+  core_project_regex <- paste0(unique(tolower(core_project_numbers)), collapse = "|")
   account_list <- ga_account_list("ga4") |> 
     mutate(
       property_meta = suppressMessages(map(propertyId, get_ga_meta_by_id)),
