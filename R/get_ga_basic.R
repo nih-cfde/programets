@@ -31,6 +31,7 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
   }
   
   ## Get All Analytics Properties
+  core_project_regex <- paste0(core_project_numbers, collapse = "|")
   account_list <- ga_account_list("ga4") |> 
     mutate(
       property_meta = suppressMessages(map(propertyId, get_ga_meta_by_id)),
@@ -38,7 +39,7 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
         property_meta,
         ~{
           res <- .x |>
-            filter(str_detect(apiName, regex(core_project_numbers, ignore_case = TRUE))) |>
+            filter(str_detect(apiName, regex(core_project_regex, ignore_case = TRUE))) |>
             tidyr::separate(apiName, into = c("api", "value"), sep = ":", remove = FALSE) |>
             pull(value)
           if (length(res) == 0) {
