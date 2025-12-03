@@ -59,41 +59,7 @@ export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$
 
   ## Add Google Analytics
   addWorksheet(wb, "ga_info")
-  json_file <- gargle::secret_decrypt_json(
-    path = system.file(
-      "secret",
-      "cfde-access-keyfile.json",
-      package = "programets"
-    ),
-    key = "CFDE_ENCRYPTION_KEY"
-  )
-  googleAnalyticsR::ga_auth(
-    json_file = json_file
-  )
-  account_list <- ga_account_list("ga4") |> 
-    mutate(
-      property_meta = map(propertyId, get_ga_meta_by_id),
-      core_project_num = map_chr(
-        property_meta,
-        ~{
-          res <- .x |>
-            filter(str_detect(apiName, core_project_numbers)) |>
-            tidyr::separate(apiName, into = c("api", "value"), sep = ":", remove = FALSE) |>
-            pull(value)
-
-          if (length(res) == 0) {
-            NA_character_
-          } else {
-            res |>
-              str_remove("^cfde_") |>
-              unique() |>
-              paste(collapse = ",")
-          }
-        }
-      )
-    ) |> 
-    filter(!is.na(core_project_num)) |> 
-    select(-property_meta)
+  
   writeData(wb = wb, sheet = "ga_info", x = account_list, na.string = "")
 
   ga_info <- get_ga_meta_by_id(core_project_numbers)
