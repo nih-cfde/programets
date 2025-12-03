@@ -1,35 +1,12 @@
-export_project <- function(
-  core_project_numbers, export = c("csv", "json", "excel"), 
-  token = gitcreds::gitcreds_get()$password, 
-  service_account_json = 'cfde-access-keyfile.json', file) {
-  
-  export <- match.arg(export)
-  
-  if(export == "csv") {
-    export_csv(core_project_numbers)
-  }
-  
-  if(export == "json") {
-    export_json(core_project_numbers)
-  }
-  
-  if(export == "excel") {
-    export_excel(core_project_numbers)
-  }
-
-}
-
-export_csv <- function(core_project_numbers) {
-
-}
-
-export_js <- function(core_project_numbers) {
-
-}
-
 #' Export to Excel
 #' 
+#' @param core_project_numbers A character vector of NIH Core Project Numbers
+#' @param token The token required for authentication with the GitHub API
+#' @param service_account_json A character string containing the path to a JSON file containing a Google service account
+#' @param file A character string containing the path to the Excel file to be written
+#' 
 #' @importFrom openxlsx createWorkbook addWorksheet writeData saveWorkbook
+#' @importFrom rlang .data
 #' @export
 #' 
 #' @examples
@@ -50,8 +27,8 @@ export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$
   ## Add Assosciated Publications
   addWorksheet(wb, "pub_info")
   pmids <- proj_info |> 
-    filter(found_publication) |> 
-    pull(pmid)
+    filter(.data$found_publication) |> 
+    pull('pmid')
   pub_info <- icite(pmids)
   writeData(wb = wb, sheet = "pub_info", x = pub_info, na.string = "")
 

@@ -5,10 +5,14 @@
 #' with the Core Project Numbers.
 #'
 #' @param core_project_numbers A character vector of NIH Core Project Numbers
+#' @param service_account_json A character string containing the path to a JSON file containing the 
+#' Google service account credentials. Defaults to "cfde-access-keyfile.json"
 #' 
-#' @importFrom googleAnalyticsR ga_account_list
+#' @importFrom googleAnalyticsR ga_account_list ga_auth
 #' @importFrom purrr map map_chr
 #' @importFrom stringr str_remove
+#' @importFrom tidyr separate
+#' @importFrom rlang .data
 #' 
 #' @return A data frame containing the associated Google Analytics data
 #' @export
@@ -34,9 +38,9 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
   core_project_regex <- paste0(unique(tolower(core_project_numbers)), collapse = "|")
   account_list <- ga_account_list("ga4") |> 
     mutate(
-      property_meta = suppressMessages(map(propertyId, get_ga_meta_by_id)),
+      property_meta = suppressMessages(map(.data$propertyId, get_ga_meta_by_id)),
       core_project_num = map_chr(
-        property_meta,
+        .data$property_meta,
         ~{
           res <- .x |>
             filter(str_detect(apiName, regex(core_project_regex, ignore_case = TRUE))) |>
@@ -54,8 +58,8 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
       )
     ) |> 
     ## Filter to those with the requested Core Project Numbers
-    filter(!is.na(core_project_num)) |> 
-    select(-property_meta)
+    filter(!is.na(.data$core_project_num)) |> 
+    select(-'property_meta')
   if(nrow(account_list) == 0) {
     rlang::inform(rlang::format_error_bullets(c(i = "No Google Analytics properties found for the requested Core Project Numbers")))
   }

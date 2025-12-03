@@ -11,6 +11,15 @@ export_excel(
   file
 )
 }
+\arguments{
+\item{core_project_numbers}{A character vector of NIH Core Project Numbers}
+
+\item{token}{The token required for authentication with the GitHub API}
+
+\item{service_account_json}{A character string containing the path to a JSON file containing a Google service account}
+
+\item{file}{A character string containing the path to the Excel file to be written}
+}
 \description{
 Export to Excel
 }

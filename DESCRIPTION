@@ -30,7 +30,8 @@ Imports:
     tibble,
     glue,
     ghql,
-    openxlsx
+    openxlsx,
+    tidyr
 Suggests:
     gargle,
     gitcreds,
