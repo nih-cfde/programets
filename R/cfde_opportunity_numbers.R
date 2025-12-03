@@ -9,6 +9,7 @@
 #' function. 
 #' 
 #' @importFrom rvest read_html html_nodes html_attr
+#' @importFrom stats na.omit
 #' 
 #' 
 #' @param url The URL of the CFDE funding webpage
