@@ -38,7 +38,7 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
         property_meta,
         ~{
           res <- .x |>
-            filter(str_detect(apiName, core_project_numbers)) |>
+            filter(str_detect(apiName, regex(core_project_numbers, ignore_case = TRUE))) |>
             tidyr::separate(apiName, into = c("api", "value"), sep = ":", remove = FALSE) |>
             pull(value)
           if (length(res) == 0) {
@@ -55,4 +55,6 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
     ## Filter to those with the requested Core Project Numbers
     filter(!is.na(core_project_num)) |> 
     select(-property_meta)
+  
+  return(account_list)
   }
