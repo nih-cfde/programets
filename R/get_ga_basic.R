@@ -1,4 +1,4 @@
-#' Get Basic Google Analytics Data
+#' Get Basic Google Analytics Info
 #'
 #' This function takes a character vector of NIH Core Project Numbers and 
 #' returns a data frame containing the any Google Analytics properties associated
