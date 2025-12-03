@@ -66,5 +66,5 @@ export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$
   writeData(wb = wb, sheet = "ga_info", x = ga_info, na.string = "")
 
   ## Save Workbook
-  saveWorkbook(wb, paste0("programets_", Sys.Date(), ".xlsx", sep = ""))
+  saveWorkbook(wb, paste0("programets_", Sys.Date(), ".xlsx", sep = ""), file = file)
 }
