@@ -29,7 +29,8 @@ Imports:
     stringr,
     tibble,
     glue,
-    ghql
+    ghql,
+    openxlsx
 Suggests:
     gargle,
     gitcreds,
