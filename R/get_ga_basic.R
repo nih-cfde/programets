@@ -55,6 +55,8 @@ get_ga_basic <- function(core_project_numbers, service_account_json = 'cfde-acce
     ## Filter to those with the requested Core Project Numbers
     filter(!is.na(core_project_num)) |> 
     select(-property_meta)
-  
+  if(nrow(account_list) == 0) {
+    rlang::inform(rlang::format_error_bullets(c(i = "No Google Analytics properties found for the requested Core Project Numbers")))
+  }
   return(account_list)
   }
