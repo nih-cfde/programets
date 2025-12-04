@@ -13,7 +13,8 @@ get_ga_basic(
 \item{core_project_numbers}{A character vector of NIH Core Project Numbers}
 
 \item{service_account_json}{A character string containing the path to a JSON file containing the
-Google service account credentials. Defaults to "cfde-access-keyfile.json"}
+Google service account credentials. If no file is provided, interactive authentication is used.
+Defaults to "cfde-access-keyfile.json"}
 }
 \value{
 A data frame containing the associated Google Analytics data

@@ -6,7 +6,8 @@
 #'
 #' @param core_project_numbers A character vector of NIH Core Project Numbers
 #' @param service_account_json A character string containing the path to a JSON file containing the 
-#' Google service account credentials. Defaults to "cfde-access-keyfile.json"
+#' Google service account credentials. If no file is provided, interactive authentication is used. 
+#' Defaults to "cfde-access-keyfile.json"
 #' 
 #' @importFrom googleAnalyticsR ga_account_list ga_auth
 #' @importFrom purrr map map_chr
