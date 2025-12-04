@@ -3,7 +3,7 @@
 #' @param core_project_numbers A character vector of NIH Core Project Numbers
 #' @param token The token required for authentication with the GitHub API
 #' @param service_account_json A character string containing the path to a JSON file containing a Google service account
-#' @param file A character string containing the path to the Excel file to be written
+#' @param dir A character string containing the path to directory where the Excel file will be written
 #' 
 #' @importFrom openxlsx createWorkbook addWorksheet writeData saveWorkbook
 #' @importFrom rlang .data
@@ -14,7 +14,7 @@
 #' test_projects <-c("OT2OD030545")
 #' }
 #' 
-export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$password, service_account_json = 'cfde-access-keyfile.json', file) {
+export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$password, service_account_json = 'cfde-access-keyfile.json', dir) {
 
   ## Create Excel Workbook
   wb <- createWorkbook()
@@ -43,5 +43,5 @@ export_excel <- function(core_project_numbers, token = gitcreds::gitcreds_get()$
   writeData(wb = wb, sheet = "ga_info", x = ga_info, na.string = "")
 
   ## Save Workbook
-  saveWorkbook(wb, paste0("programets_", Sys.Date(), ".xlsx", sep = ""), file = file)
+  saveWorkbook(wb, file.path(dir, paste0("programets_", Sys.Date(), ".xlsx", sep = "")))
 }

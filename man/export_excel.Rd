@@ -8,7 +8,7 @@ export_excel(
   core_project_numbers,
   token = gitcreds::gitcreds_get()$password,
   service_account_json = "cfde-access-keyfile.json",
-  file
+  dir
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ export_excel(
 
 \item{service_account_json}{A character string containing the path to a JSON file containing a Google service account}
 
-\item{file}{A character string containing the path to the Excel file to be written}
+\item{dir}{A character string containing the path to directory where the Excel file will be written}
 }
 \description{
 Export to Excel
