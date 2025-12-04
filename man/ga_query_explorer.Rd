@@ -28,6 +28,7 @@ ga_query_explorer()
 }
 \seealso{
 Other Google Analytics: 
-\code{\link{ga_meta_simple}()}
+\code{\link{ga_meta_simple}()},
+\code{\link{get_ga_meta_by_id}()}
 }
 \concept{Google Analytics}
