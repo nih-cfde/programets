@@ -211,6 +211,7 @@ MIT
 - [`cfde_opportunity_numbers()`](cfde_opportunity_numbers.md) : All CFDE
   Funding Opportunity Numbers
 - [`epmc_search()`](epmc_search.md) : Search Europe PMC for publications
+- [`export_tabular()`](export_tabular.md) : Export to Tabular
 - [`ga_dataframe()`](ga_dataframe.md) : Get google analytics data as a
   dataframe
 - [`ga_meta_simple()`](ga_meta_simple.md) : Google analytics metadata
@@ -219,6 +220,9 @@ MIT
   analytics query explorer
 - [`get_core_project_info()`](get_core_project_info.md) : Get Core
   Project Info
+- [`get_ga_basic()`](get_ga_basic.md) : Get Basic Google Analytics Info
+- [`get_ga_meta_by_id()`](get_ga_meta_by_id.md) : Google Analytics
+  metadata dataframe by property ID
 - [`get_github_by_topic()`](get_github_by_topic.md) : Get GitHub
   Repositories by Topic
 - [`get_github_by_topic_graphql()`](get_github_by_topic_graphql.md) :

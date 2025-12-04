@@ -24,7 +24,8 @@ analytics access and will be prompted to log in if you are not already.
 
 ## See also
 
-Other Google Analytics: [`ga_meta_simple()`](ga_meta_simple.md)
+Other Google Analytics: [`ga_meta_simple()`](ga_meta_simple.md),
+[`get_ga_meta_by_id()`](get_ga_meta_by_id.md)
 
 ## Examples
 

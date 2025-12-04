@@ -11,10 +11,13 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/reference/cfde_opportunity_numbers.html</loc></url>
 <url><loc>/reference/epmc_search.html</loc></url>
+<url><loc>/reference/export_tabular.html</loc></url>
 <url><loc>/reference/ga_dataframe.html</loc></url>
 <url><loc>/reference/ga_meta_simple.html</loc></url>
 <url><loc>/reference/ga_query_explorer.html</loc></url>
 <url><loc>/reference/get_core_project_info.html</loc></url>
+<url><loc>/reference/get_ga_basic.html</loc></url>
+<url><loc>/reference/get_ga_meta_by_id.html</loc></url>
 <url><loc>/reference/get_github_by_topic.html</loc></url>
 <url><loc>/reference/get_github_by_topic_graphql.html</loc></url>
 <url><loc>/reference/icite.html</loc></url>

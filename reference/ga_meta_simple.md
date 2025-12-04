@@ -27,7 +27,8 @@ the `ga_auth()` function.
 
 ## See also
 
-Other Google Analytics: [`ga_query_explorer()`](ga_query_explorer.md)
+Other Google Analytics: [`ga_query_explorer()`](ga_query_explorer.md),
+[`get_ga_meta_by_id()`](get_ga_meta_by_id.md)
 
 ## Examples
 

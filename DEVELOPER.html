@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">programets</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,9 +55,9 @@
 <p>Add the following line to the file:</p>
 <pre><code><span><span class="va">GARGLE_ENCRYPTION_KEY</span> <span class="op">=</span> <span class="st">"your_key_here"</span></span></code></pre>
 <p>Step 3: Encrypt the google service account json file</p>
-<p><code>{r} gargle::secret_encrypt_json(   path = "path/to/ga4-acess-keyfile.json",   key = "GARGLE_ENCRYPTION_KEY",   output = "inst/secret/ga4-acess-keyfile.json" )</code> This will create an encrypted version of the json file in the <code>inst/secret</code> directory.</p>
+<p><code>{r} gargle::secret_encrypt_json(   path = "path/to/ga4-access-keyfile.json",   key = "GARGLE_ENCRYPTION_KEY",   output = "inst/secret/ga4-access-keyfile.json" )</code> This will create an encrypted version of the json file in the <code>inst/secret</code> directory.</p>
 <p>Step 4: Use the encrypted file in your code</p>
-<p><code>{r} library(gargle) googleAnalyticsR::ga_auth(   json_file = gargle::secret_decrypt_json(     path = system.file("secret/ga4-acess-keyfile.json", package = "programets"),     key = "GARGLE_ENCRYPTION_KEY"   ) )</code></p>
+<p><code>{r} library(gargle) googleAnalyticsR::ga_auth(   json_file = gargle::secret_decrypt_json(     path = system.file("secret/ga4-access-keyfile.json", package = "programets"),     key = "GARGLE_ENCRYPTION_KEY"   ) )</code></p>
 </div>
 </div>
 

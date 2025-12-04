@@ -37,10 +37,10 @@ Add the following line to the file:
 
 Step 3: Encrypt the google service account json file
 
-`{r} gargle::secret_encrypt_json( path = "path/to/ga4-acess-keyfile.json", key = "GARGLE_ENCRYPTION_KEY", output = "inst/secret/ga4-acess-keyfile.json" )`
+`{r} gargle::secret_encrypt_json( path = "path/to/ga4-access-keyfile.json", key = "GARGLE_ENCRYPTION_KEY", output = "inst/secret/ga4-access-keyfile.json" )`
 This will create an encrypted version of the json file in the
 `inst/secret` directory.
 
 Step 4: Use the encrypted file in your code
 
-`{r} library(gargle) googleAnalyticsR::ga_auth( json_file = gargle::secret_decrypt_json( path = system.file("secret/ga4-acess-keyfile.json", package = "programets"), key = "GARGLE_ENCRYPTION_KEY" ) )`
+`{r} library(gargle) googleAnalyticsR::ga_auth( json_file = gargle::secret_decrypt_json( path = system.file("secret/ga4-access-keyfile.json", package = "programets"), key = "GARGLE_ENCRYPTION_KEY" ) )`
