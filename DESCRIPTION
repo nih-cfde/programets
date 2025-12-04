@@ -31,7 +31,8 @@ Imports:
     glue,
     ghql,
     openxlsx,
-    tidyr
+    tidyr,
+    rvest
 Suggests:
     gargle,
     gitcreds,
