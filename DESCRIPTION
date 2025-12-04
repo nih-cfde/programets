@@ -32,7 +32,8 @@ Imports:
     ghql,
     openxlsx,
     tidyr,
-    rvest
+    rvest,
+    readr
 Suggests:
     gargle,
     gitcreds,
