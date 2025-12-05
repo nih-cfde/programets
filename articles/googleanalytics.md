@@ -70,7 +70,7 @@ daily_user_country_data <- ga_data(
     date_range = c(start_date, end_date),
     limit = -1
 )
-#> ℹ 2025-12-04 19:39:33.774667 > Downloaded [ 82277 ] of total [ 82277 ] rows
+#> ℹ 2025-12-05 20:41:30.463384 > Downloaded [ 82263 ] of total [ 82263 ] rows
 ```
 
 ``` r
@@ -106,12 +106,12 @@ head(moving_avg_data)
 #> # A tibble: 6 × 7
 #>   date       newVsReturning country    activeUsers sessions activeUsers_7day_avg
 #>   <date>     <chr>          <chr>            <dbl>    <dbl>                <dbl>
-#> 1 2024-12-04 new            United St…        1083     1086                   NA
-#> 2 2024-12-04 returning      United St…        1067     1500                   NA
-#> 3 2024-12-04 returning      China              836     1214                   NA
-#> 4 2024-12-04 new            China              680      682                   NA
-#> 5 2024-12-04 returning      United Ki…         246      328                   NA
-#> 6 2024-12-04 returning      Germany            213      314                   NA
+#> 1 2024-12-05 new            United St…        1035     1037                   NA
+#> 2 2024-12-05 returning      United St…        1002     1331                   NA
+#> 3 2024-12-05 returning      China              747     1086                   NA
+#> 4 2024-12-05 new            China              624      625                   NA
+#> 5 2024-12-05 returning      United Ki…         212      307                   NA
+#> 6 2024-12-05 returning      Germany            193      277                   NA
 #> # ℹ 1 more variable: sessions_7day_avg <dbl>
 
 # Plot the moving average for active users
