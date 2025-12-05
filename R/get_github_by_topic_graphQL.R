@@ -30,13 +30,13 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   }
 
   topics <- tolower(topics)
-  
+
   # Set up client
   cli <- ghql::GraphqlClient$new(
     url = "https://api.github.com/graphql",
     headers = list(Authorization = paste0("bearer ", token))
   )
-  
+
   # GraphQL query template
   # Fetches up to `limit` repos per topic, along with key metadata
   query_template <- '
@@ -64,38 +64,37 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
             defaultBranchRef {
               target {
                 ... on Commit {
-                  history {
-                    totalCount
-                  }
+                  history { totalCount }
                 }
               }
             }
-            mentionableUsers {
-              totalCount
-            }
+            mentionableUsers { totalCount }
             repositoryTopics(first: 20) {
-              nodes {
-                topic { name }
-              }
+              nodes { topic { name } }
+            }
+            readme: object(expression: "HEAD:README.md") { id }
+            coc: object(expression: "HEAD:CODE_OF_CONDUCT.md") { id }
+            languages(first: 20) {
+              edges { size node { name } }
             }
           }
         }
       }
     }'
-  
-  # Compile query once
+
   qry <- ghql::Query$new()
   qry$query("repoQuery", query_template)
-  
-  # Helper: fetch repos for one topic
+
   fetch_topic <- function(topic) {
-    res <- cli$exec(qry$queries$repoQuery, 
-                    variables = list(queryString = paste0("topic:", topic),
-                                     limit = limit))
+    res <- cli$exec(
+      qry$queries$repoQuery,
+      variables = list(queryString = paste0("topic:", topic),
+                       limit = limit)
+    )
     dat <- jsonlite::fromJSON(res, flatten = TRUE)
     repos <- dat$data$search$nodes
     if (length(repos) == 0) return(NULL)
-    # browser()
+
     tibble::tibble(
       name         = repos$name,
       owner        = repos$owner.login,
@@ -111,31 +110,45 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
                       repos$defaultBranchRef.target.history.totalCount,
                       ~ if (is.null(.x)) NA_real_ else .x
                     ),
-      contributors = repos$mentionableUsers.totalCount %||% 0,
+      mentionable_users = repos$mentionableUsers.totalCount %||% 0,
+      has_readme   = !purrr::map_lgl(repos$readme.id, is.na),
+      code_of_conduct = !purrr::map_lgl(repos$coc.id, is.na),
       tags         = purrr::map_chr(
-                      repos$repositoryTopics.nodes,
-                      ~ if (length(.x$topic.name) == 0) NA_character_
-                        else paste(.x$topic.name, collapse = ", ")
-                    ),
+        repos$repositoryTopics.nodes,
+        ~ if (is.null(.x) || length(.x$topic.name) == 0) NA_character_
+          else paste(.x$topic.name, collapse = ", ")
+      ),
       language     = repos$primaryLanguage.name,
-      license      = repos$licenseInfo.name,
+      language_loc = purrr::map(
+        repos$languages.edges,
+        ~ if (is.null(.x)) {
+            tibble::tibble(language = NA_character_, bytes = NA_real_, loc = NA_real_)
+          } else {
+            tibble::tibble(
+              language = .x$node.name,
+              bytes = .x$size,
+              loc = round(.x$size / 50)
+            )
+          }
+      ),
+      license      = repos$licenseInfo.name %||% NA_character_,
       created_at   = repos$createdAt,
       pushed_at    = repos$pushedAt,
       updated_at   = repos$updatedAt,
       html_url     = repos$url,
       queried_topic = topic
     )
-
   }
-  
+
   # Fetch across all topics and combine
   df <- purrr::map_dfr(topics, fetch_topic)
 
-  if (nrow(df) == 0) {
+    if (nrow(df) == 0) {
     expected_cols <- c(
       "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs",
-      "closed_issues", "closed_prs", "commits", "contributors", "tags", "language", "license",
-      "created_at", "pushed_at", "updated_at", "html_url", "queried_topic"
+      "closed_issues", "closed_prs", "commits", "mentionable_users", "has_readme", "code_of_conduct", 
+      "tags", "language", "language_loc", "license", "created_at", "pushed_at", "updated_at", "html_url",
+      "queried_topic"
     )
     df <- tibble::tibble(
         !!!setNames(rep(list(NA), length(expected_cols)), expected_cols)
@@ -148,7 +161,6 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     dplyr::relocate('closed_issues', .after = 'open_prs') |>
     dplyr::relocate('closed_prs', .after = 'closed_issues') |>
     dplyr::relocate('commits', .after = 'closed_prs') |>
-    dplyr::relocate('contributors', .after = 'commits')
-  
+    dplyr::relocate('mentionable_users', .after = 'commits')
   return(df)
 }
