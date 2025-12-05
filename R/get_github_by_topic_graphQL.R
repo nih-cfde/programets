@@ -146,7 +146,7 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     if (nrow(df) == 0) {
     expected_cols <- c(
       "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs",
-      "closed_issues", "closed_prs", "commits", "mentionable_users", "has_readme", "code_of_conduct", 
+      "closed_issues", "closed_prs", "commits", "mentionable_users", "contributors","has_readme", "code_of_conduct", 
       "tags", "language", "language_loc", "license", "created_at", "pushed_at", "updated_at", "html_url",
       "queried_topic"
     )
@@ -154,13 +154,43 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
         !!!setNames(rep(list(NA), length(expected_cols)), expected_cols)
       ) %>% 
        filter(!is.na(.data$name))
-  }
+    } else {
+      df <- df |> 
+        mutate(contributors = map2_dbl(owner, name, ~ get_contributor_count(.x, .y, token = token)))
+    }
+  
   # Organize columns like before
   df <- df |>
     dplyr::relocate('open_prs', .after = 'open_issues') |>
     dplyr::relocate('closed_issues', .after = 'open_prs') |>
     dplyr::relocate('closed_prs', .after = 'closed_issues') |>
     dplyr::relocate('commits', .after = 'closed_prs') |>
-    dplyr::relocate('mentionable_users', .after = 'commits')
+    dplyr::relocate('mentionable_users', .after = 'commits') |> 
+    dplyr::relocate('contributors', .after = 'mentionable_users')
   return(df)
 }
+
+  # Helper to count contributors
+  get_contributor_count <- function(owner, repo, token = NULL) {
+    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
+    req <- request(base_url) |>
+      req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> req_auth_bearer_token(token)
+    }
+
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
+
+    link <- resp_headers(resp)[["link"]]
+    if (!is.null(link) && grepl("rel=\"last\"", link)) {
+      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
+      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
+      return(count)
+    } else {
+      body <- resp_body_json(resp)
+      return(length(body))  # if only a few contributors
+    }
+  }
+
