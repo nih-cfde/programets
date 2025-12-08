@@ -181,28 +181,3 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     dplyr::relocate('contributors', .after = 'mentionable_users')
   return(df)
 }
-
-  # Helper to count contributors
-  get_contributor_count <- function(owner, repo, token = NULL) {
-    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
-    req <- request(base_url) |>
-      req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
-      req_headers("User-Agent" = "httr2")
-    if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
-    }
-
-    resp <- tryCatch(req_perform(req), error = function(e) NULL)
-    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
-
-    link <- resp_headers(resp)[["link"]]
-    if (!is.null(link) && grepl("rel=\"last\"", link)) {
-      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
-      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
-      return(count)
-    } else {
-      body <- resp_body_json(resp)
-      return(length(body))  # if only a few contributors
-    }
-  }
-
