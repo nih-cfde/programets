@@ -1,5 +1,14 @@
-# Helper to count contributors
-  get_contributor_count <- function(owner, repo, token = NULL) {
+# REST API Helper Functions
+#' Get the number of contributors for a GitHub repository
+#'
+#' @param owner The owner of the GitHub repository
+#' @param repo The name of the GitHub repository
+#' @param token A GitHub personal access token (optional)
+#' 
+#' @importFrom httr2 req_throttle
+#'
+#' @return The number of contributors to the repository
+get_contributor_count <- function(owner, repo, token = NULL) {
     base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
     req <- request(base_url) |>
       req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
@@ -27,6 +36,7 @@
     }
   }
 
+# REST Functions
 #' Get GitHub Repositories by Topic
 #'
 #' @param topics A vector of GitHub topics to search for.
