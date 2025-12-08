@@ -96,47 +96,47 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     if (length(repos) == 0) return(NULL)
 
     tibble::tibble(
-      name         = repos$name,
-      owner        = repos$owner.login,
-      description  = repos$description,
-      stars        = repos$stargazerCount,
-      watchers     = repos$watchers.totalCount,
-      forks        = repos$forkCount,
-      open_issues  = repos$issues.totalCount,
-      closed_issues = repos$closedIssues.totalCount,
-      open_prs     = repos$openPRs.totalCount,
-      closed_prs   = repos$closedPRs.totalCount,
-      commits      = purrr::map_dbl(
-                      repos$defaultBranchRef.target.history.totalCount,
-                      ~ if (is.null(.x)) NA_real_ else .x
-                    ),
-      mentionable_users = repos$mentionableUsers.totalCount %||% 0,
-      has_readme   = !purrr::map_lgl(repos$readme.id, is.na),
-      code_of_conduct = !purrr::map_lgl(repos$coc.id, is.na),
-      tags         = purrr::map_chr(
-        repos$repositoryTopics.nodes,
-        ~ if (is.null(.x) || length(.x$topic.name) == 0) NA_character_
-          else paste(.x$topic.name, collapse = ", ")
-      ),
-      language     = repos$primaryLanguage.name,
-      language_loc = purrr::map(
-        repos$languages.edges,
-        ~ if (is.null(.x)) {
-            tibble::tibble(language = NA_character_, bytes = NA_real_, loc = NA_real_)
-          } else {
-            tibble::tibble(
-              language = .x$node.name,
-              bytes = .x$size,
-              loc = round(.x$size / 50)
-            )
-          }
-      ),
-      license      = repos$licenseInfo.name %||% NA_character_,
-      created_at   = repos$createdAt,
-      pushed_at    = repos$pushedAt,
-      updated_at   = repos$updatedAt,
-      html_url     = repos$url,
-      queried_topic = topic
+      name                 = repos$name,
+      owner                = repos$owner.login,
+      description          = repos$description,
+      stars                = repos$stargazerCount,
+      watchers             = repos$watchers.totalCount,
+      forks                = repos$forkCount,
+      open_issues          = repos$issues.totalCount,
+      closed_issues        = repos$closedIssues.totalCount,
+      open_prs             = repos$openPRs.totalCount,
+      closed_prs           = repos$closedPRs.totalCount,
+      commits              = purrr::map_dbl(
+                               repos$defaultBranchRef.target.history.totalCount,
+                               ~ if (is.null(.x)) NA_real_ else .x
+                             ),
+      mentionable_users    = repos$mentionableUsers.totalCount %||% 0,
+      has_readme           = !purrr::map_lgl(repos$readme.id, is.na),
+      code_of_conduct      = !purrr::map_lgl(repos$coc.id, is.na),
+      tags                 = purrr::map_chr(
+                               repos$repositoryTopics.nodes,
+                               ~ if (is.null(.x) || length(.x$topic.name) == 0) NA_character_
+                                 else paste(.x$topic.name, collapse = ", ")
+                             ),
+      language             = repos$primaryLanguage.name,
+      language_loc         = purrr::map(
+                               repos$languages.edges,
+                               ~ if (is.null(.x)) {
+                                   tibble::tibble(language = NA_character_, bytes = NA_real_, loc = NA_real_)
+                                 } else {
+                                   tibble::tibble(
+                                     language = .x$node.name,
+                                     bytes = .x$size,
+                                     loc = round(.x$size / 50)
+                                   )
+                                 }
+                             ),
+      license              = repos$licenseInfo.name %||% NA_character_,
+      created_at           = repos$createdAt,
+      pushed_at            = repos$pushedAt,
+      updated_at           = repos$updatedAt,
+      html_url             = repos$url,
+      queried_topic        = topic
     )
   }
 
@@ -156,7 +156,7 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
        filter(!is.na(.data$name))
     } else {
       df <- df |> 
-        mutate(contributors = map2_dbl(owner, name, ~ get_contributor_count(.x, .y, token = token)))
+        mutate(contributors = map2_dbl(.data$owner, .data$name, ~ get_contributor_count(.x, .y, token = token)))
     }
   
   # Organize columns like before
