@@ -16,10 +16,10 @@ get_contributor_count <- function(owner, repo, token = NULL) {
     if (!is.null(token)) {
       req <- req |> 
         req_auth_bearer_token(token) |> 
-        req_throttle(capacity = 5000, fill_time_s = 3600)
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
     } else {
       req <- req |> 
-      req_throttle(capacity = 60, fill_time_s = 3600)
+      req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
     }
 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
@@ -86,10 +86,10 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
   if (!is.null(token)) {
     req_topic <- req_topic |> 
       req_auth_bearer_token(token) |> 
-      req_throttle(capacity = 30, fill_time_s = 60)
+      req_throttle(capacity = 30, fill_time_s = 60, realm = "github_search_authenticated")
   } else {
     req_topic <- req_topic |>
-      req_throttle(capacity = 10, fill_time_s = 60)
+      req_throttle(capacity = 10, fill_time_s = 60, realm = "github_search_anonymous")
   }
 
   resp_topic <- req_perform(req_topic)
@@ -108,7 +108,14 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     req <- httr2::request(url) |>
       httr2::req_headers("User-Agent" = "httr2",
                          "X-GitHub-Api-Version" = "2022-11-28")
-    if (!is.null(token)) req <- req |> httr2::req_auth_bearer_token(token)
+    if (!is.null(token)) {
+      req <- req |> 
+        httr2::req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
+    }
 
     resp <- tryCatch(httr2::req_perform(req), error = function(e) NULL)
     if (is.null(resp) || httr2::resp_status(resp) != 200) return(NA_real_)
@@ -141,7 +148,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(state = state, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
     }
 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
@@ -165,8 +177,13 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(q = q, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
-    }
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 30, fill_time_s = 60, realm = "github_search_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 10, fill_time_s = 60, realm = "github_search_anonymous")
+    } 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
     if (!is.null(resp) && resp_status(resp) == 200) {
       return(resp_body_json(resp)$total_count)
@@ -192,7 +209,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(sha = branch, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
     }
 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
