@@ -22,12 +22,13 @@ test_that("Returned data frame contains expected columns", {
   skip_if_offline()
   skip_on_ci()
 
-  result <- get_github_by_topic_graphql(c("bioinformatics"), token = gitcreds_get()$password, limit = 3)
+  result <- get_github_by_topic_graphql(c("u24ca289073"), token = gitcreds_get()$password, limit = 3)
   expected_cols <- c(
-     "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs", 
-     "closed_issues", "closed_prs", "commits", "contributors", "tags", "language", "license", 
-     "created_at", "pushed_at", "updated_at", "html_url"
-  )
+      "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs",
+      "closed_issues", "closed_prs", "commits", "mentionable_users", "contributors",
+      "has_readme", "code_of_conduct", "tags", "language", "language_loc",
+      "license", "created_at", "pushed_at", "updated_at", "html_url", "queried_topic"
+    )
   expect_true(all(expected_cols %in% names(result)))
 })
 

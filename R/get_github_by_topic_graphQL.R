@@ -4,6 +4,8 @@
 #' @param token A GitHub personal access token. Required for GraphQL API.
 #' @param limit The maximum number of repositories to return per topic (max 1000 by GitHub).
 #' 
+#' @importFrom cli cli_progress_bar cli_progress_update cli_progress_done
+#' @importFrom dplyr bind_rows
 #' @importFrom ghql GraphqlClient
 #' @importFrom jsonlite fromJSON
 #' @importFrom tibble tibble
@@ -24,25 +26,27 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   if (missing(token) || is.null(token)) {
     stop("A GitHub personal access token is required for GraphQL API.")
   }
-
   if (length(topics) == 0) {
     stop("At least one topic must be provided.")
   }
 
   topics <- tolower(topics)
 
-  # Set up client
+  # Setup client
   cli <- ghql::GraphqlClient$new(
     url = "https://api.github.com/graphql",
     headers = list(Authorization = paste0("bearer ", token))
   )
 
-  # GraphQL query template
-  # Fetches up to `limit` repos per topic, along with key metadata
+  # GraphQL query template with pagination
   query_template <- '
-    query($queryString: String!, $limit: Int!) {
-      search(query: $queryString, type: REPOSITORY, first: $limit) {
+    query($queryString: String!, $limit: Int!, $cursor: String) {
+      search(query: $queryString, type: REPOSITORY, first: $limit, after: $cursor) {
         repositoryCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         nodes {
           ... on Repository {
             name
@@ -85,16 +89,37 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   qry <- ghql::Query$new()
   qry$query("repoQuery", query_template)
 
+  # Pagination-enabled requester
   fetch_topic <- function(topic) {
-    res <- cli$exec(
-      qry$queries$repoQuery,
-      variables = list(queryString = paste0("topic:", topic),
-                       limit = limit)
-    )
-    dat <- jsonlite::fromJSON(res, flatten = TRUE)
-    repos <- dat$data$search$nodes
-    if (length(repos) == 0) return(NULL)
-    # browser()
+    cursor <- NULL
+    all_repos <- list()
+
+    repeat {
+      res <- cli$exec(
+        qry$queries$repoQuery,
+        variables = list(
+          queryString = paste0("topic:", topic),
+          limit = limit,
+          cursor = cursor
+        )
+      )
+
+      dat <- jsonlite::fromJSON(res, flatten = TRUE)
+      search <- dat$data$search
+      repos <- search$nodes
+
+      if (length(repos) > 0) {
+        all_repos <- append(all_repos, list(repos))
+      }
+
+      if (!isTRUE(search$pageInfo$hasNextPage)) break
+      cursor <- search$pageInfo$endCursor
+    }
+
+    if (length(all_repos) == 0) return(NULL)
+
+    repos <- dplyr::bind_rows(all_repos)
+
     tibble::tibble(
       name                 = repos$name,
       owner                = repos$owner.login,
@@ -152,32 +177,45 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     )
   }
 
-  # Fetch across all topics and combine
-  df <- purrr::map_dfr(topics, fetch_topic)
+  results_list <- vector("list", length(topics)) ## initialize results
+  cli::cli_progress_bar("Requesting repositories by topic", total = length(topics))
+  
+  for (i in seq_along(topics)) {
+    results_list[[i]] <- fetch_topic(topics[i])
+    cli::cli_progress_update()
+  }
+  
+  cli::cli_progress_done()
+  results <- dplyr::bind_rows(results_list)
 
-    if (nrow(df) == 0) {
+  # If nothing is found
+  if (nrow(results) == 0) {
     expected_cols <- c(
       "name", "owner", "description", "stars", "watchers", "forks", "open_issues", "open_prs",
-      "closed_issues", "closed_prs", "commits", "mentionable_users", "contributors","has_readme", "code_of_conduct", 
-      "tags", "language", "language_loc", "license", "created_at", "pushed_at", "updated_at", "html_url",
-      "queried_topic"
+      "closed_issues", "closed_prs", "commits", "mentionable_users", "contributors",
+      "has_readme", "code_of_conduct", "tags", "language", "language_loc",
+      "license", "created_at", "pushed_at", "updated_at", "html_url", "queried_topic"
     )
-    df <- tibble::tibble(
+
+    return(
+      tibble::tibble(
         !!!setNames(rep(list(NA), length(expected_cols)), expected_cols)
-      ) %>% 
-       filter(!is.na(.data$name))
-    } else {
-      df <- df |> 
-        mutate(contributors = map2_dbl(.data$owner, .data$name, ~ get_contributor_count(.x, .y, token = token)))
-    }
-  
+      ) |> filter(!is.na(.data$name))
+    )
+  }
+
+  # Contributor count
+  results <- results |>
+    dplyr::mutate(contributors = map2_dbl(.data$owner, .data$name, ~
+      get_contributor_count(.x, .y, token = token)
+    ))
+
   # Organize columns like before
-  df <- df |>
+  results |>
     dplyr::relocate('open_prs', .after = 'open_issues') |>
     dplyr::relocate('closed_issues', .after = 'open_prs') |>
     dplyr::relocate('closed_prs', .after = 'closed_issues') |>
     dplyr::relocate('commits', .after = 'closed_prs') |>
-    dplyr::relocate('mentionable_users', .after = 'commits') |> 
+    dplyr::relocate('mentionable_users', .after = 'commits') |>
     dplyr::relocate('contributors', .after = 'mentionable_users')
-  return(df)
 }
