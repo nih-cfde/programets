@@ -84,7 +84,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     req_url_query(q = q_topic, per_page = limit)
 
   if (!is.null(token)) {
-    req_topic <- req_topic |> req_auth_bearer_token(token)
+    req_topic <- req_topic |> 
+      req_auth_bearer_token(token) |> 
+      req_throttle(capacity = 30, fill_time_s = 60)
+  } else {
+    req_topic <- req_topic |>
+      req_throttle(capacity = 10, fill_time_s = 60)
   }
 
   resp_topic <- req_perform(req_topic)
