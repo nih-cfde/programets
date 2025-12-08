@@ -94,7 +94,7 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
     dat <- jsonlite::fromJSON(res, flatten = TRUE)
     repos <- dat$data$search$nodes
     if (length(repos) == 0) return(NULL)
-
+    # browser()
     tibble::tibble(
       name                 = repos$name,
       owner                = repos$owner.login,
@@ -111,14 +111,20 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
                                ~ if (is.null(.x)) NA_real_ else .x
                              ),
       mentionable_users    = repos$mentionableUsers.totalCount %||% 0,
-      has_readme           = purrr::map_lgl(
-                               repos$readme.id,
-                               ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
-                            ),
-      code_of_conduct      = purrr::map_lgl(
-                               repos$coc.id,
-                               ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
-                             ),
+      has_readme           = if( 'readme.id' %in% names(repos)) {
+                               purrr::map_lgl(
+                                 repos$readme.id,
+                                 ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
+                              ) } else {
+                                FALSE
+                              },
+      code_of_conduct      = if( 'coc.id' %in% names(repos)) {
+                               purrr::map_lgl(
+                                 repos$coc,
+                                 ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
+                               ) } else {
+                                FALSE
+                               },
       tags                 = purrr::map_chr(
                                repos$repositoryTopics.nodes,
                                ~ if (is.null(.x) || length(.x$topic.name) == 0) NA_character_
