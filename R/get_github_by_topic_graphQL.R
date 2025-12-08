@@ -111,8 +111,8 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
                                ~ if (is.null(.x)) NA_real_ else .x
                              ),
       mentionable_users    = repos$mentionableUsers.totalCount %||% 0,
-      has_readme           = !purrr::map_lgl(repos$readme.id, is.na),
-      code_of_conduct      = !purrr::map_lgl(repos$coc.id, is.na),
+      has_readme           = purrr::map_lgl(repos$readme.id, !is.na),
+      code_of_conduct      = purrr::map_lgl(repos$coc.id, !is.na),
       tags                 = purrr::map_chr(
                                repos$repositoryTopics.nodes,
                                ~ if (is.null(.x) || length(.x$topic.name) == 0) NA_character_
