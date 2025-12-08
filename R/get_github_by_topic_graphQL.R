@@ -29,6 +29,9 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
   if (length(topics) == 0) {
     stop("At least one topic must be provided.")
   }
+  if (limit > 30) {
+    stop("limit must be 30 or less") ## results are good. more than this and GitHub will nope out
+  }
 
   topics <- tolower(topics)
 
