@@ -81,6 +81,7 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
             }
             readme: object(expression: "HEAD:README.md") { id }
             coc: object(expression: "HEAD:CODE_OF_CONDUCT.md") { id }
+            contributing: object(expression: "HEAD:CONTRIBUTING.md") { id }
             languages(first: 20) {
               edges { size node { name } }
             }
@@ -149,6 +150,13 @@ get_github_by_topic_graphql <- function(topics, token, limit = 30) {
       code_of_conduct      = if( 'coc.id' %in% names(repos)) {
                                purrr::map_lgl(
                                  repos$coc.id,
+                                 ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
+                               ) } else {
+                                FALSE
+                               },
+      contributing         = if( 'contributing.id' %in% names(repos)) {
+                               purrr::map_lgl(
+                                 repos$contributing.id,
                                  ~ if (is.na(.x) || is.null(.x) || length(.x) == 0) FALSE else TRUE
                                ) } else {
                                 FALSE
