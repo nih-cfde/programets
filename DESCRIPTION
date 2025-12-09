@@ -33,7 +33,8 @@ Imports:
     openxlsx,
     tidyr,
     rvest,
-    readr
+    readr,
+    cli
 Suggests:
     gargle,
     gitcreds,

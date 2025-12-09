@@ -1,3 +1,42 @@
+# REST API Helper Functions
+#' Get the number of contributors for a GitHub repository
+#'
+#' @param owner The owner of the GitHub repository
+#' @param repo The name of the GitHub repository
+#' @param token A GitHub personal access token (optional)
+#' 
+#' @importFrom httr2 req_throttle
+#'
+#' @return The number of contributors to the repository
+get_contributor_count <- function(owner, repo, token = NULL) {
+    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
+    req <- request(base_url) |>
+      req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
+      req_headers("User-Agent" = "httr2")
+    if (!is.null(token)) {
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |> 
+      req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
+    }
+
+    resp <- tryCatch(req_perform(req), error = function(e) NULL)
+    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
+
+    link <- resp_headers(resp)[["link"]]
+    if (!is.null(link) && grepl("rel=\"last\"", link)) {
+      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
+      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
+      return(count)
+    } else {
+      body <- resp_body_json(resp)
+      return(length(body))  # if only a few contributors
+    }
+  }
+
+# REST Functions
 #' Get GitHub Repositories by Topic
 #'
 #' @param topics A vector of GitHub topics to search for.
@@ -45,7 +84,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     req_url_query(q = q_topic, per_page = limit)
 
   if (!is.null(token)) {
-    req_topic <- req_topic |> req_auth_bearer_token(token)
+    req_topic <- req_topic |> 
+      req_auth_bearer_token(token) |> 
+      req_throttle(capacity = 30, fill_time_s = 60, realm = "github_search_authenticated")
+  } else {
+    req_topic <- req_topic |>
+      req_throttle(capacity = 10, fill_time_s = 60, realm = "github_search_anonymous")
   }
 
   resp_topic <- req_perform(req_topic)
@@ -64,7 +108,14 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
     req <- httr2::request(url) |>
       httr2::req_headers("User-Agent" = "httr2",
                          "X-GitHub-Api-Version" = "2022-11-28")
-    if (!is.null(token)) req <- req |> httr2::req_auth_bearer_token(token)
+    if (!is.null(token)) {
+      req <- req |> 
+        httr2::req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
+    }
 
     resp <- tryCatch(httr2::req_perform(req), error = function(e) NULL)
     if (is.null(resp) || httr2::resp_status(resp) != 200) return(NA_real_)
@@ -97,7 +148,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(state = state, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
     }
 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
@@ -121,8 +177,13 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(q = q, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
-    }
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 30, fill_time_s = 60, realm = "github_search_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 10, fill_time_s = 60, realm = "github_search_anonymous")
+    } 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
     if (!is.null(resp) && resp_status(resp) == 200) {
       return(resp_body_json(resp)$total_count)
@@ -148,7 +209,12 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
       req_url_query(sha = branch, per_page = 1) |>
       req_headers("User-Agent" = "httr2")
     if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
+      req <- req |> 
+        req_auth_bearer_token(token) |> 
+        req_throttle(capacity = 5000, fill_time_s = 3600, realm = "github_authenticated")
+    } else {
+      req <- req |>
+        req_throttle(capacity = 60, fill_time_s = 3600, realm = "github_anonymous")
     }
 
     resp <- tryCatch(req_perform(req), error = function(e) NULL)
@@ -167,30 +233,6 @@ get_github_by_topic <- function(topics, token = NULL, limit = 30) {
 
   commit_counts <- map2_dbl(df$owner, df$name, ~ get_commit_count(.x, .y, token = token))
   df$commits <- commit_counts
-
-  # Helper to count contributors
-  get_contributor_count <- function(owner, repo, token = NULL) {
-    base_url <- glue("https://api.github.com/repos/{owner}/{repo}/contributors")
-    req <- request(base_url) |>
-      req_url_query(per_page = 1, anon = "false") |>  # anon=TRUE counts contributors without accounts
-      req_headers("User-Agent" = "httr2")
-    if (!is.null(token)) {
-      req <- req |> req_auth_bearer_token(token)
-    }
-
-    resp <- tryCatch(req_perform(req), error = function(e) NULL)
-    if (is.null(resp) || resp_status(resp) != 200) return(NA_real_)
-
-    link <- resp_headers(resp)[["link"]]
-    if (!is.null(link) && grepl("rel=\"last\"", link)) {
-      matches <- regmatches(link, regexpr("page=\\d+>; rel=\\\"last\\\"", link))
-      count <- as.numeric(sub("page=", "", sub(">; rel=\"last\"", "", matches)))
-      return(count)
-    } else {
-      body <- resp_body_json(resp)
-      return(length(body))  # if only a few contributors
-    }
-  }
 
   contributor_counts <- map2_dbl(df$owner, df$name, ~ get_contributor_count(.x, .y, token = token))
   df$contributors <- contributor_counts
